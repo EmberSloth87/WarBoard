@@ -10,3 +10,7 @@ __pycache__/
 
 # Migrations
 migrations/
+
+# Config files
+*.env
+config.py
