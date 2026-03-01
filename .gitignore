@@ -7,3 +7,6 @@ __pycache__/
 
 # OS clutter
 .DS_Store
+
+# Migrations
+migrations/
