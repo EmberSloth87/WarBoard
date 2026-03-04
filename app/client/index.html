@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WarBoard | Focus & Plan</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+    <link rel="stylesheet" href="static/site.css">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+</head>
+<body>
+    <nav class="navbar is-dark">
+        <div class="navbar-brand">
+            <span class="navbar-item is-size-4 has-text-weight-bold">WARBOARD</span>
+        </div>
+    </nav>
+
+    <div class="columns is-gapless" style="height: calc(100vh - 52px);">
+        <aside class="column is-3 p-4 has-background-light" style="border-right: 1px solid #dbdbdb;">
+            <div class="level">
+                <div class="level-left"><h2 class="title is-4">Projects</h2></div>
+                <div class="level-right"><button class="button is-primary is-small" id="addProjectBtn">+</button></div>
+            </div>
+            <div id="projectList" class="menu">
+                </div>
+        </aside>
+
+        <main class="column is-9">
+            <div id="selectionPrompt" class="notification is-warning is-light is-hidden mb-0">
+                <p class="has-text-centered"><strong>Targeting Mode:</strong> Please click on a Task or Project to link this deadline.</p>
+            </div>
+            
+            <div class="board-container p-4">
+                <div id="warboardColumns" class="columns is-variable is-1">
+                    </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal" id="taskModal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head"><p class="modal-card-title">Add Task</p></header>
+            <section class="modal-card-body">
+                <input type="text" id="taskNameInput" class="input mb-2" placeholder="Task Name">
+                <div class="select is-fullwidth mb-2">
+                    <select id="taskProjectSelect">
+                        <option value="">No Project</option>
+                    </select>
+                </div>
+                <input type="number" id="taskTimeInput" class="input" placeholder="Minutes Allocated">
+            </section>
+            <footer class="modal-card-foot">
+                <button class="button is-success" id="saveTaskBtn">Save Task</button>
+            </footer>
+        </div>
+    </div>
+
+    <script src="js/model.js"></script>
+    <script src="js/view.js"></script>
+    <script src="js/controller.js"></script>
+</body>
+</html>

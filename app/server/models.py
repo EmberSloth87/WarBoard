@@ -29,6 +29,7 @@ class Day(db.Model):
 
 class FocusBlock(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(128), nullable=False)
     start_time = db.Column(db.DateTime, nullable=False)
     duration = db.Column(db.Integer, nullable=False)  # Duration in minutes
     notes = db.Column(db.Text)
@@ -53,7 +54,7 @@ class Task(db.Model):
     order = db.Column(db.Integer, nullable=True)  # Order of the task within the focus block
 
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=True)
-    due_date = db.relationship('DueDate', backref='task', uselist=False, nullable=True)
+    due_date = db.relationship('DueDate', backref='task', uselist=False)
     focus_block_id = db.Column(db.Integer, db.ForeignKey('focus_block.id'), nullable=True)
 
     '''
