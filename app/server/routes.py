@@ -8,7 +8,7 @@ such as viewing the warboard, creating new projects, and managing tasks.
 """
 
 from flask import Blueprint, jsonify, request
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from app.server import db
 from app.server.models import Day, FocusBlock, Task, Project, DueDate
 
@@ -23,7 +23,16 @@ api_bp = Blueprint('api', __name__, url_prefix='/api')
 @api_bp.route('/board', methods=['GET'])
 def get_board_view():
     today = datetime.today().date()
-    end_date = today + timedelta(days=13) # Evaluates the exact date 13 days in the future to establish our 14-day view horizon
+    end_date = today + timedelta(days=13) # ALGORITHM: Evaluates the exact date 13 days in the future to establish our 14-day view horizon
+
+    # ALGORITHM: Evaluate if we have at least 14 days in the database starting from today, and if not, creates new Day records until we do. 
+    # This ensures our board view always has a full 14-day window of data to work with, even if the user hasn't been using the app consistently.
+    days_in_db = Day.query.filter(Day.date >= today, Day.date <= end_date).count()
+    if days_in_db < 14:
+        for i in range(14 - days_in_db, 14):
+            new_day = Day(date=today + timedelta(days=i))
+            db.session.add(new_day)
+        db.session.commit()
 
     # ALGORITHM: Query the database for all days falling within our 14-day window
     days = Day.query.filter(Day.date >= today, Day.date <= end_date).order_by(Day.date).all()
@@ -35,7 +44,14 @@ def get_board_view():
         day_dict = {
             'id': day.id,
             'date': day.date.isoformat(),
-            'focus_blocks': []
+            'focus_blocks': [],
+            'due_dates': [{
+                'id': dd.id, 
+                'time': dd.time.isoformat() if dd.time else None, 
+                'type': dd.due_date_type, 
+                'task_id': dd.task_id, 
+                'project_id': dd.project_id
+            } for dd in day.due_dates]
         }
         
         # ALGORITHM: Iterate through focus blocks for the current day and serialize their tasks
@@ -63,6 +79,14 @@ def get_board_view():
         board_data.append(day_dict)
 
     return jsonify(board_data), 200
+
+# ==========================================
+# PROJECT ROUTES
+# ==========================================
+
+# ==========================================
+# DUE DATE ROUTES
+# ==========================================
 
 # ==========================================
 # FOCUS BLOCK ROUTES

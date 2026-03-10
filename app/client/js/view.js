@@ -1,12 +1,11 @@
 class WarBoardView {
     constructor() {
-        this.board = document.getElementById('warboardColumns');
-        this.projectList = document.getElementById('projectList');
+        this.board = document.querySelector("#warboardColumns");
+        this.projectList = document.querySelector("#projectList");
     }
 
     // ALGORITHM: Render the 14 columns of the WarBoard
     renderBoard(days) {
-        this.board.innerHTML = '';
         
         days.forEach(day => {
             const col = document.createElement('div');
@@ -17,34 +16,62 @@ class WarBoardView {
                 new Date(a.start_time) - new Date(b.start_time)
             );
 
-            col.innerHTML = `
-                <div class="box p-2">
-                    <p class="heading">${new Date(day.date).toLocaleDateString('en-US', { weekday: 'long' })}</p>
-                    <p class="title is-5">${day.date}</p>
-                    <hr class="my-2">
-                    <div class="focus-blocks-container">
-                        ${this.renderBlocks(sortedBlocks)}
-                    </div>
-                </div>
-            `;
+            const colContainer = document.createElement('div');
+            colContainer.className = 'box p-2';
+
+            const colHeading = document.createElement('p');
+            colHeading.className = 'heading';
+            colHeading.textContent = new Date(day.date).toLocaleDateString('en-US', { weekday: 'long' });
+
+            const dateElement = document.createElement('p');
+            dateElement.className = 'title is-5';
+            dateElement.textContent = day.date;
+
+            const hrElement = document.createElement('hr');
+            hrElement.className = 'my-2';
+
+            const focusBlocksContainer = document.createElement('div');
+            focusBlocksContainer.className = 'focus-blocks-container';
+            this.renderBlocks(sortedBlocks, focusBlocksContainer);
+
+            colContainer.appendChild(colHeading);
+            colContainer.appendChild(dateElement);
+            colContainer.appendChild(hrElement);
+            colContainer.appendChild(focusBlocksContainer);
+            col.appendChild(colContainer);
+
             this.board.appendChild(col);
         });
     }
 
     // ALGORITHM: Create HTML for focus blocks and their tasks
-    renderBlocks(blocks) {
-        return blocks.map(block => `
-            <div class="focus-block mb-3 p-2" data-id="${block.id}">
-                <p class="has-text-weight-bold is-size-6">${block.title}</p>
-                <div class="task-list" id="tasks-block-${block.id}">
-                    ${block.tasks.map(t => `
-                        <div class="tag is-info is-light my-1 selectable-item" data-type="task" data-id="${t.id}">
-                            ${t.name} (${t.time_allocated}m)
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        `).join('');
+    renderBlocks(blocks, container) {
+        blocks.forEach(block => {
+            const blockElement = document.createElement('div');
+            blockElement.className = 'focus-block mb-3 p-2';
+            blockElement.setAttribute('data-id', block.id);
+
+            const titleElement = document.createElement('p');
+            titleElement.className = 'has-text-weight-bold is-size-6';
+            titleElement.textContent = block.title;
+
+            const tasksContainer = document.createElement('div');
+            tasksContainer.className = 'task-list';
+            tasksContainer.id = `tasks-block-${block.id}`;
+
+            block.tasks.forEach(t => {
+                const taskElement = document.createElement('div');
+                taskElement.className = 'tag is-info is-light my-1 selectable-item';
+                taskElement.setAttribute('data-type', 'task');
+                taskElement.setAttribute('data-id', t.id);
+                taskElement.textContent = `${t.name} (${t.time_allocated}m)`;
+                tasksContainer.appendChild(taskElement);
+            });
+
+            blockElement.appendChild(titleElement);
+            blockElement.appendChild(tasksContainer);
+            container.appendChild(blockElement);
+        });
     }
 
     // ALGORITHM: Toggle the visual "Targeting Mode" for deadlines

@@ -43,7 +43,10 @@ class WarBoardController {
             }
         }
     }
+    
 }
 
 // Start the app
-const app = new WarBoardController(new WarBoardModel(), new WarBoardView());
+document.addEventListener('DOMContentLoaded', () => {
+    const app = new WarBoardController(new WarBoardModel(), new WarBoardView());
+});
