@@ -25,14 +25,17 @@ def get_board_view():
     today = datetime.today().date()
     end_date = today + timedelta(days=13) # ALGORITHM: Evaluates the exact date 13 days in the future to establish our 14-day view horizon
 
-    # ALGORITHM: Evaluate if we have at least 14 days in the database starting from today, and if not, creates new Day records until we do. 
-    # This ensures our board view always has a full 14-day window of data to work with, even if the user hasn't been using the app consistently.
-    days_in_db = Day.query.filter(Day.date >= today, Day.date <= end_date).count()
-    if days_in_db < 14:
-        for i in range(14 - days_in_db, 14):
-            new_day = Day(date=today + timedelta(days=i))
+    # ALGORITHM: Iterate through the next 14 days and ensure each one exists
+    for i in range(14):
+        target_date = today + timedelta(days=i)
+        # Check if this specific date exists
+        exists = Day.query.filter_by(date=target_date).first()
+    
+        if not exists:
+            new_day = Day(date=target_date)
             db.session.add(new_day)
-        db.session.commit()
+
+    db.session.commit()
 
     # ALGORITHM: Query the database for all days falling within our 14-day window
     days = Day.query.filter(Day.date >= today, Day.date <= end_date).order_by(Day.date).all()
@@ -87,6 +90,8 @@ def get_board_view():
 # ==========================================
 # DUE DATE ROUTES
 # ==========================================
+
+
 
 # ==========================================
 # FOCUS BLOCK ROUTES

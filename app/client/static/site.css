@@ -1,1 +1,64 @@
 @import "https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css";
+@import "https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js";
+
+
+/* ALGORITHM: Fix the main area to the viewport height minus the navbar */
+main.column {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 52px); /* 52px is the standard Bulma navbar height */
+    overflow: hidden;
+    width: 5880px; /* 14 days * 420px per day */
+}
+
+/* ALGORITHM: Allow the container to scroll horizontally but fill vertical space */
+.board-container {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 10px;
+}
+
+/* ALGORITHM: Ensure the row of columns takes up the full height of the container */
+#warboardColumns {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    height: 100%; /* This is the key to vertical stretching */
+    width: 100%;
+    margin: 0;
+}
+
+/* ALGORITHM: Set fixed width and full height for each day */
+.day-column {
+    width: 420px !important;
+    min-width: 420px !important; 
+    max-width: 420px !important;
+    height: 100%; 
+    padding: 0 10px; /* Slight horizontal spacing between columns */
+}
+
+/* ALGORITHM: Make the Bulma 'box' inside the column fill the entire space */
+.day-column .box {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0 !important;
+}
+
+/* ALGORITHM: Allow the focus blocks to take up all middle space, pushing deadlines to bottom */
+.focus-blocks-container {
+    flex-grow: .7;
+    overflow-y: auto; /* Adds a vertical scrollbar if a day has TOO many blocks */
+    background-color: lightgray; /* Optional: visually distinguish the focus block area */
+
+}
+
+.deadlines-container {
+    flex-grow: .3;
+    background-color: lightgray; /* Optional: visually distinguish the deadlines area */
+    padding: 10px;
+    overflow-y: auto; /* Adds a vertical scrollbar if a day has TOO many deadlines */
+}

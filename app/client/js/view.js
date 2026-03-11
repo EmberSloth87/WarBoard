@@ -34,10 +34,17 @@ class WarBoardView {
             focusBlocksContainer.className = 'focus-blocks-container';
             this.renderBlocks(sortedBlocks, focusBlocksContainer);
 
+            
+            const deadlinesContainer = document.createElement('div');
+            deadlinesContainer.className = 'deadlines-container mt-2';
+            this.renderDeadlines(day.due_dates, deadlinesContainer);
+            
+
             colContainer.appendChild(colHeading);
             colContainer.appendChild(dateElement);
             colContainer.appendChild(hrElement);
             colContainer.appendChild(focusBlocksContainer);
+            colContainer.appendChild(deadlinesContainer);
             col.appendChild(colContainer);
 
             this.board.appendChild(col);
@@ -71,6 +78,17 @@ class WarBoardView {
             blockElement.appendChild(titleElement);
             blockElement.appendChild(tasksContainer);
             container.appendChild(blockElement);
+        });
+    }
+
+    renderDeadlines(deadlines, container) {
+        deadlines.forEach(deadline => {
+            const deadlineElement = document.createElement('div');
+            deadlineElement.className = 'notification is-warning is-light selectable-item';
+            deadlineElement.setAttribute('data-type', 'deadline');
+            deadlineElement.setAttribute('data-id', deadline.id);
+            deadlineElement.textContent = `${deadline.name} (Due: ${new Date(deadline.due_time).toLocaleTimeString()})`;
+            container.appendChild(deadlineElement);
         });
     }
 
