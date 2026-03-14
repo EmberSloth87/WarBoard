@@ -1,3 +1,5 @@
+'use strict'
+
 class WarBoardModel {
     constructor() {
         this.apiBase = 'http://127.0.0.1:5000/api'; // The base URL for our Flask routes
@@ -12,6 +14,39 @@ class WarBoardModel {
     // ALGORITHM: Fetch all projects for the sidebar and dropdowns
     async getProjects() {
         const response = await fetch(`${this.apiBase}/projects`);
+        return await response.json();
+    }
+
+    // ALGORITHM: Send a new project to the server
+    async addProject(projectData) {
+        const response = await fetch(`${this.apiBase}/projects`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(projectData)
+        });
+        return await response.json();
+    }
+
+    async deleteProject(projectId) {
+        const response = await fetch(`${this.apiBase}/projects/${projectId}`, {
+            method: 'DELETE'
+        });
+        return await response.json();
+    }
+
+    async addBlock(blockData) {
+        const response = await fetch(`${this.apiBase}/focus_blocks`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(blockData)
+        });
+        return await response.json();
+    }
+
+    async deleteBlock(blockId) {
+        const response = await fetch(`${this.apiBase}/focus_blocks/${blockId}`, {
+            method: 'DELETE'
+        });
         return await response.json();
     }
 

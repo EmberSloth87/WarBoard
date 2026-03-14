@@ -34,7 +34,7 @@ class FocusBlock(db.Model):
     duration = db.Column(db.Integer, nullable=False)  # Duration in minutes
     notes = db.Column(db.Text)
 
-    day_id = db.Column(db.Integer, db.ForeignKey('day.id'), nullable=False)
+    date = db.Column(db.Integer, db.ForeignKey('day.date'), nullable=False)
 
     tasks = db.relationship('Task', backref='focus_block', lazy=True)
 

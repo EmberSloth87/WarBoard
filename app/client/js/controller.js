@@ -1,14 +1,63 @@
+'use strict'
+
 class WarBoardController {
     constructor(model, view) {
         this.model = model;
         this.view = view;
         this.isSelectingForDeadline = false;
 
+        this.setupGlobalListeners();
+
         this.init();
+    }
+
+    // ALGORITHM: Listen for clicks on the entire board and filter for our specific buttons
+    setupGlobalListeners() {
+        document.addEventListener('click', (e) => {
+            // EVALUATES: Does the click originate from or within the "Add Project" button?
+            const addProjectBtn = e.target.closest('#addProjectBtn');
+            if (addProjectBtn) {
+                this.handleAddProject();
+                return; // Exit early to prevent overlapping checks
+            }
+
+            // EVALUATES: Does the click originate from or within a "Delete Project" button?
+            const deleteProjectBtn = e.target.closest('#deleteProjectBtn');
+            if (deleteProjectBtn) {
+                e.preventDefault();
+                const projectId = deleteProjectBtn.dataset.id;
+                this.model.deleteProject(projectId).then(() => {
+                    // Remove the project from the UI
+                    deleteProjectBtn.closest('.panel-block').remove();
+                });
+                return;
+            }
+
+            // EVALUATES: Does the click originate from or within an "Add Block" button?
+            const addBlockBtn = e.target.closest('#addBlockBtn');
+            if (addBlockBtn) {
+                e.preventDefault();
+                const date = addBlockBtn.dataset.date;
+                console.log("Block button for date " + date + " was clicked");
+                this.handleAddBlock(date);
+                return;
+            }
+
+            // EVALUATES: Does the click originate from or within an "Add Task" button?
+            const addTaskBtn = e.target.closest('#addTaskBtn');
+            if (addTaskBtn) {
+                e.preventDefault();
+                const blockId = addTaskBtn.dataset.blockId;
+                this.handleAddTask(blockId);
+                return;
+            }
+        });
     }
 
     async init() {
         const boardData = await this.model.getBoardData();
+        const projectData = await this.model.getProjects();
+        this.view.renderProjects(projectData);
         this.view.renderBoard(boardData);
         this.setupDragAndDrop();
     }
@@ -27,6 +76,36 @@ class WarBoardController {
                 }
             });
         });
+    }
+
+    // ALGORITHM: Handle the "Add Project" button click by prompting for a name and sending it to the server
+    handleAddProject() {
+        console.log('Add Project button clicked');
+        const projectName = prompt('Enter new project name:');
+        if (projectName) {
+            this.model.addProject({ name: projectName }).then(newProject => {
+                // Update the UI to include the new project
+                this.view.renderProjects([newProject]);
+            });
+        }
+    }
+
+    // ALGORITHM: Handle the "Add Block" button click by showing a prompt and sending new block data to the server
+    handleAddBlock(date) {
+        console.log(`Add Block button for date ${date} clicked`);
+        const blockName = prompt('Enter focus block name:');
+        const startTime = prompt('Enter start time (HH:MM):');
+        const duration = prompt('Enter duration (minutes):');
+        if (blockName && startTime && duration) {
+            const blockData = {
+                name: blockName,
+                date: date,
+                start_time: startTime,
+                duration: parseInt(duration)
+            };
+            this.model.addBlock(blockData);
+        }
+        
     }
 
     // ALGORITHM: Handle clicks on tasks/projects specifically during deadline selection

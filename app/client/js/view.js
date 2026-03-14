@@ -1,3 +1,5 @@
+'use strict'
+
 class WarBoardView {
     constructor() {
         this.board = document.querySelector("#warboardColumns");
@@ -34,11 +36,23 @@ class WarBoardView {
             focusBlocksContainer.className = 'focus-blocks-container';
             this.renderBlocks(sortedBlocks, focusBlocksContainer);
 
+            const btnDiv = document.createElement('div');
+            btnDiv.className = 'level is-mobile';
+
+            const createBlockBtn = document.createElement('button');
+            createBlockBtn.className = 'button is-small is-primary is-fullwidth';
+            createBlockBtn.id = 'addBlockBtn'
+            createBlockBtn.textContent = '+';
+            createBlockBtn.setAttribute('data-date', day.date);
+
             
             const deadlinesContainer = document.createElement('div');
             deadlinesContainer.className = 'deadlines-container mt-2';
             this.renderDeadlines(day.due_dates, deadlinesContainer);
             
+            
+            btnDiv.appendChild(createBlockBtn);
+            focusBlocksContainer.appendChild(btnDiv);
 
             colContainer.appendChild(colHeading);
             colContainer.appendChild(dateElement);
@@ -48,6 +62,31 @@ class WarBoardView {
             col.appendChild(colContainer);
 
             this.board.appendChild(col);
+        });
+    }
+
+    // ALGORITHM: Render the list of projects in the sidebar
+    renderProjects(projects) {
+        projects.forEach(project => {
+            const projectDiv = document.createElement('div');
+            projectDiv.className = 'panel-block is-clickable selectable-item';
+            projectDiv.setAttribute('data-type', 'project');
+
+            const projectElement = document.createElement('a');
+            projectElement.className = 'panel-block is-clickable selectable-item';
+            projectElement.setAttribute('data-type', 'project');
+            projectElement.setAttribute('data-id', project.id);
+            projectElement.textContent = project.name;
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete is-small ml-2';
+            deleteBtn.id = 'deleteProjectBtn';
+            deleteBtn.setAttribute('data-type', 'delete-project');
+            deleteBtn.setAttribute('data-id', project.id);
+            
+            projectDiv.appendChild(deleteBtn);
+            projectDiv.appendChild(projectElement);
+            this.projectList.appendChild(projectDiv);
         });
     }
 

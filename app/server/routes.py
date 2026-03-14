@@ -87,6 +87,53 @@ def get_board_view():
 # PROJECT ROUTES
 # ==========================================
 
+# ALGORITHM: Parse incoming JSON data to create a new project, ensuring the required name field is present
+@api_bp.route('/projects', methods=['POST'])
+def create_project():
+    data = request.get_json()
+    
+    if not data or 'name' not in data: # Evaluates if the incoming payload is missing the required project name
+        return jsonify({'error': 'Project name is required'}), 400
+        
+    new_project = Project(
+        name=data['name'],
+        description=data.get('description', '')
+    )
+    
+    db.session.add(new_project)
+    db.session.commit()
+    
+    return jsonify({'message': 'Project created successfully', 'id': new_project.id}), 201
+
+# ALGORITHM: Query the database for all projects and return them as a JSON list
+@api_bp.route('/projects', methods=['GET'])
+def get_all_projects():
+    projects = Project.query.all()
+    return jsonify([{'id': p.id, 'name': p.name, 'description': p.description} for p in projects]), 200
+
+# ALGORITHM: Find an existing project by ID and update its attributes based on provided JSON data
+@api_bp.route('/projects/<int:project_id>', methods=['PUT'])
+def update_project(project_id):
+    project = Project.query.get_or_404(project_id)
+    data = request.get_json()
+    
+    if 'name' in data: # Evaluates if the user provided a new name to update
+        project.name = data['name']
+    if 'description' in data: # Evaluates if the user provided a new description to update
+        project.description = data['description']
+        
+    db.session.commit()
+    return jsonify({'message': 'Project updated successfully'}), 200
+
+# ALGORITHM: Find a project by ID and remove it from the database
+@api_bp.route('/projects/<int:project_id>', methods=['DELETE'])
+def delete_project(project_id):
+    project = Project.query.get_or_404(project_id)
+    db.session.delete(project)
+    db.session.commit()
+    return jsonify({'message': 'Project deleted successfully'}), 200
+
+
 # ==========================================
 # DUE DATE ROUTES
 # ==========================================
@@ -121,7 +168,7 @@ def create_focus_block():
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
-
+    
 # ALGORITHM: Find an existing Focus Block by ID and update its attributes based on provided JSON data
 @api_bp.route('/focus_blocks/<int:block_id>', methods=['PUT'])
 def update_focus_block(block_id):
@@ -136,13 +183,36 @@ def update_focus_block(block_id):
     db.session.commit()
     return jsonify({'message': 'Focus block updated successfully'}), 200
 
-# ALGORITHM: Find a Focus Block by ID and remove it from the database
+#ALGORITHM: Find a Focus Block by ID and remove it from the database
 @api_bp.route('/focus_blocks/<int:block_id>', methods=['DELETE'])
 def delete_focus_block(block_id):
     block = FocusBlock.query.get_or_404(block_id)
     db.session.delete(block)
     db.session.commit()
     return jsonify({'message': 'Focus block deleted successfully'}), 200
+
+# ALGORITHM: Fetch all Focus Blocks, including their associated tasks, and return it as JSON
+@api_bp.route('/focus_blocks', methods=['GET'])
+def get_focus_blocks():
+    focus_blocks = FocusBlock.query.all()
+    blocks_data = []
+    for block in focus_blocks:
+        block_data = {
+            'id': block.id,
+            'start_time': block.start_time.isoformat(),
+            'duration': block.duration,
+            'notes': block.notes,
+            'tasks': [{
+                'id': task.id,
+                'name': task.name,
+                'time_allocated': task.time_allocated,
+                'order': task.order,
+                'project_id': task.project_id
+            } for task in sorted(block.tasks, key=lambda x: x.order or 0)]
+        }
+        blocks_data.append(block_data)
+    return jsonify(blocks_data), 200
+
 
 # ==========================================
 # TASK ROUTES
