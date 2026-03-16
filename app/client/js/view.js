@@ -41,6 +41,12 @@ class WarBoardView {
             focusBlocksContainer.className = 'focus-blocks-container';
             this.renderBlocks(sortedBlocks, focusBlocksContainer);
 
+            const noBlocksElement = document.createElement('p');
+            if (!sortedBlocks || sortedBlocks.length === 0) {
+                noBlocksElement.className = 'is-size-5 is-bold has-text-black-bis is-flex is-justify-content-center mt-4';
+                noBlocksElement.textContent = 'No focus blocks scheduled';
+            }
+
             const btnDiv = document.createElement('div');
             btnDiv.className = 'level is-mobile';
 
@@ -55,14 +61,33 @@ class WarBoardView {
             deadlinesContainer.className = 'deadlines-container mt-2';
             this.renderDeadlines(day.due_dates, deadlinesContainer);
             
+            const createDeadlineBtn = document.createElement('button');
+            createDeadlineBtn.className = 'button is-small is-primary is-fullwidth';
+            createDeadlineBtn.id = 'addDeadlineBtn';
+            createDeadlineBtn.textContent = '+';
+            createDeadlineBtn.setAttribute('data-date', day.date);
+            
+            const noDeadlinesElement = document.createElement('p');
+            if (!day.due_dates || day.due_dates.length === 0) {
+                noDeadlinesElement.className = 'is-size-5 is-bold has-text-black-bis is-flex is-justify-content-center mt-4';
+                noDeadlinesElement.textContent = 'No deadlines due';
+            }
+            
             
             btnDiv.appendChild(createBlockBtn);
             focusBlocksContainer.appendChild(btnDiv);
+
+            
+            focusBlocksContainer.appendChild(noBlocksElement);
 
             colContainer.appendChild(colHeading);
             colContainer.appendChild(dateElement);
             colContainer.appendChild(hrElement);
             colContainer.appendChild(focusBlocksContainer);
+
+            deadlinesContainer.appendChild(createDeadlineBtn);
+            deadlinesContainer.appendChild(noDeadlinesElement);
+
             colContainer.appendChild(deadlinesContainer);
             col.appendChild(colContainer);
 
@@ -113,7 +138,7 @@ class WarBoardView {
         
             const titleElement = document.createElement('p');
             titleElement.className = 'has-text-weight-bold is-size-6 mb-1';
-            titleElement.textContent = block.title || "Untitled Block";
+            titleElement.textContent = block.title || 'untitled'; // Fallback title if none provided
 
             // Grouping the Time and Duration tags together for a cleaner look
             const metaTags = document.createElement('div');
@@ -122,7 +147,7 @@ class WarBoardView {
             // EVALUATES: Converts the ISO timestamp into a human-readable 12-hour format
             const timeTag = document.createElement('span');
             timeTag.className = 'tag is-rounded is-light';
-            const formattedTime = new Date(block.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const formattedTime = String(block.start_time).substring(0, 5); // Extracts HH:MM from the time string
             timeTag.textContent = formattedTime;
 
             const durationTag = document.createElement('span');
@@ -138,11 +163,14 @@ class WarBoardView {
             const editLink = document.createElement('a');
             // Navigates to the form with the specific block ID in the URL
             editLink.href = `focus_block_form.html?id=${block.id}`; 
-            editLink.className = 'button is-small is-primary is-outlined';
+            editLink.className = 'button is-small is-warning';
             editLink.innerHTML = '<span>Edit</span>';
 
             headerDiv.appendChild(titleSection);
             headerDiv.appendChild(editLink);
+
+            const divider = document.createElement('hr');
+            divider.className = 'my-1';
 
             // ALGORITHM: Create the task container with a subtle background to separate it from the header
             const tasksContainer = document.createElement('div');
@@ -152,14 +180,26 @@ class WarBoardView {
             if (block.tasks && block.tasks.length > 0) {
                 // Sort tasks by 'order' property before rendering
                 block.tasks.sort((a, b) => (a.order || 0) - (b.order || 0)).forEach(t => {
-                    const taskElement = document.createElement('div');
-                    taskElement.className = 'is-size-7 py-1 is-flex is-align-items-center selectable-item';
-                    taskElement.setAttribute('data-type', 'task');
-                    taskElement.setAttribute('data-id', t.id);
+                    const taskDiv = document.createElement('div');
+                    taskDiv.className = 'is-size-7 py-1 is-flex is-align-items-center selectable-item';
+                    taskDiv.setAttribute('data-type', 'task');
+                    taskDiv.setAttribute('data-id', t.id);
                 
                     // Using a simple bullet point for a professional list appearance
-                    taskElement.innerHTML = `<span class="has-text-grey-light mr-2">•</span> ${t.name}`;
-                    tasksContainer.appendChild(taskElement);
+                    const taskText = document.createElement('span');
+                    taskText.className = 'ml-2 is-size-6';
+                    taskText.textContent = t.name;
+
+                    const taskTime = document.createElement('span');
+                    taskTime.className = 'tag is-rounded is-light ml-auto';
+                    const taskDuration = `${t.time_allocated}m`;
+                    taskTime.textContent = taskDuration;
+
+                    taskDiv.appendChild(taskText);
+                    taskDiv.appendChild(taskTime);
+                    tasksContainer.appendChild(taskDiv);
+
+                    tasksContainer.appendChild(divider.cloneNode()); // Add a divider between tasks for better separation
                 });
             } else {
                 const noTasksElement = document.createElement('p');
@@ -169,6 +209,7 @@ class WarBoardView {
             }
 
             blockElement.appendChild(headerDiv);
+            blockElement.appendChild(divider);
             blockElement.appendChild(tasksContainer);
             container.appendChild(blockElement);
         });

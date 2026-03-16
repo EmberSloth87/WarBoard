@@ -8,7 +8,7 @@ such as viewing the warboard, creating new projects, and managing tasks.
 """
 
 from flask import Blueprint, jsonify, request
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, time, timedelta
 from app.server import db
 from app.server.models import Day, FocusBlock, Task, Project, DueDate
 
@@ -61,6 +61,7 @@ def get_board_view():
         for block in day.focus_blocks:
             block_dict = {
                 'id': block.id,
+                'title': block.title,
                 'start_time': block.start_time.isoformat(),
                 'duration': block.duration,
                 'notes': block.notes,
@@ -154,16 +155,14 @@ def create_focus_block():
         return jsonify({'error': 'Missing required fields'}), 400
         
     try:
-        # Clean the ISO string: replaces 'Z' with '+00:00' for better compatibility
-        time_str = data['start_time'].replace('Z', '+00:00')
-        start_time = datetime.fromisoformat(time_str)
+        start_time = datetime.strptime(data['start_time'], "%H:%M").time()
         
         new_block = FocusBlock(
             title=data.get('title', 'New Block'), # Now explicitly including the title
             start_time=start_time,
             duration=data.get('duration', 60),
             notes=data.get('notes', ''),
-            date=data['date']
+            date=datetime.strptime(data['date'], '%Y-%m-%d').date()
         )
         
         db.session.add(new_block)
@@ -184,7 +183,7 @@ def update_focus_block(block_id):
     if 'title' in data: # Evaluates if the user provided a new title to update
         block.title = data['title']
     if 'start_time' in data: # Evaluates if the user provided a new start time to update
-        block.start_time = datetime.fromisoformat(data['start_time'])
+        block.start_time = datetime.strptime(data['start_time'][0:5], "%H:%M").time()
     if 'duration' in data: # Evaluates if the user provided a new duration to update
         block.duration = data['duration']
     if 'notes' in data: # Evaluates if the user provided new notes to update
@@ -209,6 +208,7 @@ def get_focus_blocks():
     for block in focus_blocks:
         block_data = {
             'id': block.id,
+            'title': block.title,
             'date': block.date.isoformat(),
             'start_time': block.start_time.isoformat(),
             'duration': block.duration,
@@ -230,6 +230,8 @@ def get_focus_block(block_id):
     block = FocusBlock.query.get_or_404(block_id)
     block_data = {
         'id': block.id,
+        'title': block.title,
+        'date': block.date.isoformat(),
         'start_time': block.start_time.isoformat(),
         'duration': block.duration,
         'notes': block.notes,

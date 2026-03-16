@@ -47,12 +47,8 @@ class FocusBlockEditor {
 
         // Populate the main form fields
         document.getElementById('title').value = block.title || '';
-        
-        // Formats the ISO string to just HH:MM for the time input
-        if (block.start_time) {
-            const timeString = new Date(block.start_time).toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
-            document.getElementById('start_time').value = timeString; 
-        }
+
+        document.getElementById('start_time').value = block.start_time || '';
         
         document.getElementById('duration').value = block.duration || '';
 
@@ -197,9 +193,23 @@ class FocusBlockEditor {
 
         const updateData = {
             title: document.getElementById('title').value,
-            start_time: document.getElementById('start_time').value,
+            start_time: document.getElementById('start_time').value, // Only include if user provided a value
             duration: parseInt(document.getElementById('duration').value)
         };
+
+        if (!updateData.title) {
+            alert('Title is required!');
+            return;
+        }
+        else if (!updateData.start_time) {
+            alert('Start time is required!');
+            return;
+        }
+        else if (!updateData.duration) {
+            alert('Duration is required!');
+            return;
+        }
+
 
         const response = await fetch(`${this.apiBase}/focus_blocks/${this.blockId}`, {
             method: 'PUT',

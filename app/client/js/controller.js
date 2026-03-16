@@ -37,7 +37,9 @@ class WarBoardController {
             const addBlockBtn = e.target.closest('#addBlockBtn');
             if (addBlockBtn) {
                 e.preventDefault();
-                const date = addBlockBtn.dataset.date;
+                let date = addBlockBtn.dataset.date;
+                date = date.replace(/-/g, '/'); // Convert "YYYY-MM-DD" to "YYYY/MM/DD" for Date parsing
+                date = new Date(date).toISOString().split('T')[0]; // Normalize to "YYYY-MM-DD"
                 this.handleAddBlock(date);
                 return;
             }
@@ -95,9 +97,9 @@ class WarBoardController {
 
         // Create focus block with default values. User will edit these in the block form after creation.
         const blockData = {
-            title: "block",
+            title: "Focus Block",
             date: date,
-            start_time: new Date(`${date}T00:00:00`).toISOString(),
+            start_time: '00:00',
             duration: 60
         };
         this.model.addBlock(blockData).then(newBlock => {

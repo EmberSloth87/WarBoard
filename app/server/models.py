@@ -30,11 +30,11 @@ class Day(db.Model):
 class FocusBlock(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128), nullable=False)
-    start_time = db.Column(db.DateTime, nullable=False)
+    start_time = db.Column(db.Time, nullable=False)
     duration = db.Column(db.Integer, nullable=False)  # Duration in minutes
     notes = db.Column(db.Text)
 
-    date = db.Column(db.Integer, db.ForeignKey('day.date'), nullable=False)
+    date = db.Column(db.Date, db.ForeignKey('day.date'), nullable=False)
 
     tasks = db.relationship('Task', backref='focus_block', lazy=True)
 
