@@ -149,16 +149,21 @@ def delete_project(project_id):
 def create_focus_block():
     data = request.get_json()
     
-    if not data or 'day_id' not in data or 'start_time' not in data or 'duration' not in data: # Evaluates if the incoming payload is missing required fields
+    # EVALUATES: Are the required fields present in the request?
+    if not data or 'date' not in data or 'start_time' not in data:
         return jsonify({'error': 'Missing required fields'}), 400
         
     try:
-        start_time = datetime.fromisoformat(data['start_time'])
+        # Clean the ISO string: replaces 'Z' with '+00:00' for better compatibility
+        time_str = data['start_time'].replace('Z', '+00:00')
+        start_time = datetime.fromisoformat(time_str)
+        
         new_block = FocusBlock(
+            title=data.get('title', 'New Block'), # Now explicitly including the title
             start_time=start_time,
-            duration=data['duration'],
+            duration=data.get('duration', 60),
             notes=data.get('notes', ''),
-            day_id=data['day_id']
+            date=data['date']
         )
         
         db.session.add(new_block)
@@ -166,7 +171,8 @@ def create_focus_block():
         return jsonify({'message': 'Focus block created successfully', 'id': new_block.id}), 201
         
     except Exception as e:
-        db.session.rollback()
+        db.session.rollback() # Always rollback on error to keep the DB clean
+        print(f"Error creating focus block: {e}") # Log the error for debugging
         return jsonify({'error': str(e)}), 500
     
 # ALGORITHM: Find an existing Focus Block by ID and update its attributes based on provided JSON data
@@ -175,6 +181,10 @@ def update_focus_block(block_id):
     block = FocusBlock.query.get_or_404(block_id)
     data = request.get_json()
     
+    if 'title' in data: # Evaluates if the user provided a new title to update
+        block.title = data['title']
+    if 'start_time' in data: # Evaluates if the user provided a new start time to update
+        block.start_time = datetime.fromisoformat(data['start_time'])
     if 'duration' in data: # Evaluates if the user provided a new duration to update
         block.duration = data['duration']
     if 'notes' in data: # Evaluates if the user provided new notes to update
@@ -199,6 +209,7 @@ def get_focus_blocks():
     for block in focus_blocks:
         block_data = {
             'id': block.id,
+            'date': block.date.isoformat(),
             'start_time': block.start_time.isoformat(),
             'duration': block.duration,
             'notes': block.notes,
@@ -212,6 +223,25 @@ def get_focus_blocks():
         }
         blocks_data.append(block_data)
     return jsonify(blocks_data), 200
+
+# ALGORITHM: Fetch a single Focus Block by ID, including its associated tasks, and return it as JSON
+@api_bp.route('/focus_blocks/<int:block_id>', methods=['GET'])
+def get_focus_block(block_id):
+    block = FocusBlock.query.get_or_404(block_id)
+    block_data = {
+        'id': block.id,
+        'start_time': block.start_time.isoformat(),
+        'duration': block.duration,
+        'notes': block.notes,
+        'tasks': [{
+            'id': task.id,
+            'name': task.name,
+            'time_allocated': task.time_allocated,
+            'order': task.order,
+            'project_id': task.project_id
+        } for task in sorted(block.tasks, key=lambda x: x.order or 0)]
+    }
+    return jsonify(block_data), 200
 
 
 # ==========================================
@@ -281,3 +311,13 @@ def delete_task(task_id):
     db.session.delete(task)
     db.session.commit()
     return jsonify({'message': 'Task deleted successfully'}), 200
+
+
+# ==========================================
+# DAY ROUTES
+# ==========================================
+
+@api_bp.route('/days', methods=['GET'])
+def get_days():
+    days = Day.query.order_by(Day.date).all()
+    return jsonify([{'id': d.id, 'date': d.date.isoformat()} for d in days]), 200

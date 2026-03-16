@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WarBoard</title>
+    <link rel="stylesheet" href="static/site.css">
+    <script src="js/focus_block_form.js"></script>
+</head>
+<body>
+    <nav class="navbar is-dark">
+        <div class="navbar-brand">
+            <span class="navbar-item is-size-4 has-text-weight-bold">Edit Focus Block</span>
+        </div>
+    </nav>
+
+    <main class="container is-max-desktop pt-6">
+
+        <form id="details-form" method="POST" enctype="multipart/form-data" class="box">
+            <h2 class="title is-4">
+                <span class="text">
+                    <span>Focus Block</span>
+                </span>
+            </h2>
+            
+            <div class="field">
+                <label for="title" class="label">
+                    Focus Block Title
+                    <span class="has-text-danger">*</span>
+                </label>
+                <div class="control">
+                    <input type="text" id="title" name="title" required class="input">
+                </div>
+            </div>
+            
+            <div class="columns">
+                <div class="column is-half">
+                    <div class="field">
+                        <label for="start_time" class="label">
+                            Start Time
+                            <span class="has-text-danger">*</span>
+                        </label>
+                        <div class="control">
+                            <input type="time" id="start_time" name="start_time" class="input" placeholder="HH:MM (24-hour format)">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="column is-half">
+                    <div class="field">
+                        <label for="duration" class="label">
+                            Duration (minutes)
+                            <span class="has-text-danger">*</span>
+                        </label>
+                        <div class="control">
+                            <input type="number" id="duration" name="duration" required class="input" placeholder="e.g., 60">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="box">
+                <label for="tasks" class="label">Associated Tasks</label>
+                <div id="tasks-container" class="box has-background-grey-lighter">
+                    <!-- Dynamically populated list of tasks will go here -->
+
+                </div>
+
+                <div class="control">
+                    <h3 class="title is-5">
+                        <span class="text">
+                            <span>Add a task</span>
+                        </span>
+                    </h3>
+
+                    <div>
+                        <div class="field">
+                            <label for="task-name" class="label">Task Name</label>
+                            <div class="control">
+                                <input type="text" id="task-name" class="input" placeholder="Enter task name">
+                            </div>
+                        </div>
+
+                        <div class="columns">
+                            <div class="column is-half">
+                                <div class="field">
+                                    <label for="task-project" class="label">Project</label>
+                                    <div class="control">
+                                        <div class="select is-fullwidth">
+                                            <select id="task-project">
+                                                <option value="">No Project</option>
+                                                <!-- Dynamically populated project options will go here -->
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                
+                            <div class="column is-half">
+                                <div class="field">
+                                    <label for="task-duration" class="label">Minutes Allocated</label>
+                                    <div class="control">
+                                        <input type="number" id="task-duration" class="input" placeholder="Enter minutes allocated">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    <button type="button" id="add-task-btn" class="button is-link is-small mt-2">
+                        <span>Add Task</span>
+                    </button>
+                </div>
+            </div>
+
+
+            <div class="field is-grouped mt-5">
+                <div class="control">
+                    <button type="submit" class="button is-primary">
+                        <span>Update Details</span>
+                    </button>
+
+                    <button type="button" class="button is-light">
+                        <span>Cancel</span>
+                    </button>
+
+                    <button type="button" id="delete-focus-block-btn" class="button is-danger is-outlined">
+                        <span>Delete Focus Block</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </main>
+</body>
+</html>

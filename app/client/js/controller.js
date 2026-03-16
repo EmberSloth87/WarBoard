@@ -38,7 +38,6 @@ class WarBoardController {
             if (addBlockBtn) {
                 e.preventDefault();
                 const date = addBlockBtn.dataset.date;
-                console.log("Block button for date " + date + " was clicked");
                 this.handleAddBlock(date);
                 return;
             }
@@ -90,22 +89,21 @@ class WarBoardController {
         }
     }
 
-    // ALGORITHM: Handle the "Add Block" button click by showing a prompt and sending new block data to the server
-    handleAddBlock(date) {
+    // ALGORITHM: Handle the "Add Block" button click by creating a new block with default values and sending it to the server
+    async handleAddBlock(date) {
         console.log(`Add Block button for date ${date} clicked`);
-        const blockName = prompt('Enter focus block name:');
-        const startTime = prompt('Enter start time (HH:MM):');
-        const duration = prompt('Enter duration (minutes):');
-        if (blockName && startTime && duration) {
-            const blockData = {
-                name: blockName,
-                date: date,
-                start_time: startTime,
-                duration: parseInt(duration)
-            };
-            this.model.addBlock(blockData);
-        }
-        
+
+        // Create focus block with default values. User will edit these in the block form after creation.
+        const blockData = {
+            title: "block",
+            date: date,
+            start_time: new Date(`${date}T00:00:00`).toISOString(),
+            duration: 60
+        };
+        this.model.addBlock(blockData).then(newBlock => {
+            // Update the UI to include the new block
+            this.view.renderBlocks([newBlock], this.view.getBlocksContainer(date));
+        });       
     }
 
     // ALGORITHM: Handle clicks on tasks/projects specifically during deadline selection
@@ -122,6 +120,8 @@ class WarBoardController {
             }
         }
     }
+
+    
     
 }
 

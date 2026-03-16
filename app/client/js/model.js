@@ -11,6 +11,11 @@ class WarBoardModel {
         return await response.json();
     }
 
+    async getDays() {
+        const response = await fetch(`${this.apiBase}/days`);
+        return await response.json();
+    }
+
     // ALGORITHM: Fetch all projects for the sidebar and dropdowns
     async getProjects() {
         const response = await fetch(`${this.apiBase}/projects`);
