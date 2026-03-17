@@ -11,6 +11,11 @@ class WarBoardView {
         return dayColumn ? dayColumn.querySelector('.focus-blocks-container') : null;
     }
 
+    getDeadlinesContainer(date) {
+        const dayColumn = this.board.querySelector(`.day-column[data-date="${date}"]`);
+        return dayColumn ? dayColumn.querySelector('.deadlines-container') : null;
+    }
+
     // ALGORITHM: Render the 14 columns of the WarBoard
     renderBoard(days) {
         
@@ -221,7 +226,7 @@ class WarBoardView {
             deadlineElement.className = 'notification is-warning is-light selectable-item';
             deadlineElement.setAttribute('data-type', 'deadline');
             deadlineElement.setAttribute('data-id', deadline.id);
-            deadlineElement.textContent = `${deadline.name} (Due: ${new Date(deadline.due_time).toLocaleTimeString()})`;
+            deadlineElement.textContent = `${deadline.title} (Due: ${deadline.time ? deadline.time.substring(0, 5) : 'No time'})`;
             container.appendChild(deadlineElement);
         });
     }

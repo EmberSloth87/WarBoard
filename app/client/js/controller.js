@@ -45,11 +45,13 @@ class WarBoardController {
             }
 
             // EVALUATES: Does the click originate from or within an "Add Task" button?
-            const addTaskBtn = e.target.closest('#addTaskBtn');
-            if (addTaskBtn) {
+            const addDeadlineBtn = e.target.closest('#addDeadlineBtn');
+            if (addDeadlineBtn) {
                 e.preventDefault();
-                const blockId = addTaskBtn.dataset.blockId;
-                this.handleAddTask(blockId);
+                let date = addDeadlineBtn.dataset.date;
+                date = date.replace(/-/g, '/'); // Convert "YYYY-MM-DD" to "YYYY/MM/DD" for Date parsing
+                date = new Date(date).toISOString().split('T')[0]; // Normalize to "YYYY-MM-DD"
+                this.handleAddDeadline(date);
                 return;
             }
         });
@@ -105,6 +107,20 @@ class WarBoardController {
         this.model.addBlock(blockData).then(newBlock => {
             // Update the UI to include the new block
             this.view.renderBlocks([newBlock], this.view.getBlocksContainer(date));
+        });       
+    }
+
+    async handleAddDeadline(date) {
+        console.log(`Add Deadline button for date ${date} clicked`);
+
+        const deadlineData = {
+            title: "New Deadline",
+            date: date,
+            time: '23:59'
+        };
+        this.model.addDeadline(deadlineData).then(newDeadline => {
+            // Update the UI to include the new block
+            this.view.renderBlocks([newDeadline], this.view.getDeadlinesContainer(date));
         });       
     }
 

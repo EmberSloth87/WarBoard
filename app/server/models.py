@@ -49,23 +49,20 @@ class FocusBlock(db.Model):
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128), nullable=False)
-    time_allocated = db.Column(db.Integer)  # Time in minutes
+    time_allocated = db.Column(db.Integer, nullable=False)  # Time in minutes
 
     order = db.Column(db.Integer, nullable=True)  # Order of the task within the focus block
 
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=True)
-    due_date = db.relationship('DueDate', backref='task', uselist=False)
     focus_block_id = db.Column(db.Integer, db.ForeignKey('focus_block.id'), nullable=True)
 
     '''
+    A task must be associated with a focus block, as it represents a specific task to be completed during that focus block.
+
     A task can be associated with a project, but it is not required.
-    A task can be associated with a focus block, but it is not required.
-    A task can have a due date, but it is not required.
     This allows for flexibility in how tasks are organized and tracked.
 
-    If a task is associated with a focus block, it will be displayed within that block on the warboard.
     If a task is associated with a project, it can be grouped with other tasks from the same project for better organization and tracking.
-    If a task is not associated with a focus block, it can still be tracked and managed independently, and may be displayed in a separate section of the warboard for unscheduled tasks.
     If a task is not associated with a project, it can still be tracked and managed independently, and may be listed as a general task.
     '''
 
@@ -95,26 +92,18 @@ class Project(db.Model):
 
 class DueDate(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    time = db.Column(db.Time)
+    time = db.Column(db.Time, nullable=False)
+    title = db.Column(db.String(128), nullable=False)
 
-    due_date_type = db.Column(db.String(20), nullable=False)  # 'task' or 'project'
-
-    task_id = db.Column(db.Integer, db.ForeignKey('task.id'), nullable=True)
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=True)
-    day_id = db.Column(db.Integer, db.ForeignKey('day.id'), nullable=True)
+    date = db.Column(db.Date, db.ForeignKey('day.date'), nullable=False)
 
     '''
-    A due date can be associated with a task, a project, or both.
-    This allows for flexibility in how deadlines are tracked and managed.
-    If a due date is associated with a task, it will be displayed on the warboard in relation to that task.
-    If a due date is associated with a project, it can be used to track deadlines and milestones for the project as a whole, 
-    and may be displayed in a separate section of the warboard for project deadlines.
-
-    A due date can be associated with both a task and a project, allowing for more specific tracking of 
-    deadlines in relation to both the individual task and the larger project it is part of.
-
-    A due date must be associated with at least one of either a task or a project, 
-    ensuring that all due dates are relevant to the work being tracked on the warboard.
+    A due date can be associated with a project, but it is not required.
+    A due date must be associated with a day, as it represents a deadline for that day
+    This allows for flexibility in how due dates are organized and tracked.
+    If a due date is associated with a project, it can be grouped with other due dates from the same project for better organization and tracking.
+    If a due date is not associated with a project, it can still be tracked and managed independently, and may be listed as a general due date for that day.
     '''
 
 

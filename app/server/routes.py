@@ -51,8 +51,7 @@ def get_board_view():
             'due_dates': [{
                 'id': dd.id, 
                 'time': dd.time.isoformat() if dd.time else None, 
-                'type': dd.due_date_type, 
-                'task_id': dd.task_id, 
+                'title': dd.title,
                 'project_id': dd.project_id
             } for dd in day.due_dates]
         }
@@ -139,7 +138,55 @@ def delete_project(project_id):
 # DUE DATE ROUTES
 # ==========================================
 
+@api_bp.route('/due_dates', methods=['POST'])
+def create_due_date():
+    data = request.get_json()
+    
+    if not data or 'title' not in data or 'date' not in data: # Evaluates if the payload is missing required fields for a due date
+        return jsonify({'error': 'Title and date are required for a due date'}), 400
+        
+    new_due_date = DueDate(
+        title=data['title'],
+        time=datetime.strptime(data['time'], '%H:%M').time() if 'time' in data else None,
+        project_id=data.get('project_id'),
+        date=datetime.strptime(data['date'], '%Y-%m-%d').date()
+    )
+    
+    db.session.add(new_due_date)
+    db.session.commit()
+    
+    return jsonify({'message': 'Due date created successfully', 'id': new_due_date.id}), 201
 
+@api_bp.route('/due_dates/<int:due_date_id>', methods=['PUT'])
+def update_due_date(due_date_id):
+    due_date = DueDate.query.get_or_404(due_date_id)
+    data = request.get_json()
+    
+    if 'title' in data: # Evaluates if the user provided a new title to update
+        due_date.title = data['title']
+    if 'time' in data: # Evaluates if the user provided a new time to update
+        due_date.time = datetime.strptime(data['time'], '%H:%M').time()
+        
+    db.session.commit()
+    return jsonify({'message': 'Due date updated successfully'}), 200
+
+@api_bp.route('/due_dates/<int:due_date_id>', methods=['DELETE'])
+def delete_due_date(due_date_id):
+    due_date = DueDate.query.get_or_404(due_date_id)
+    db.session.delete(due_date)
+    db.session.commit()
+    return jsonify({'message': 'Due date deleted successfully'}), 200
+
+@api_bp.route('/due_dates', methods=['GET'])
+def get_due_dates():
+    due_dates = DueDate.query.all()
+    return jsonify([{
+        'id': dd.id, 
+        'title': dd.title, 
+        'time': dd.time.isoformat() if dd.time else None, 
+        'project_id': dd.project_id,
+        'date': dd.date.isoformat() if dd.date else None
+    } for dd in due_dates]), 200
 
 # ==========================================
 # FOCUS BLOCK ROUTES

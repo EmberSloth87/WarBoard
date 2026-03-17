@@ -73,4 +73,14 @@ class WarBoardModel {
             body: JSON.stringify({ order: newOrder })
         });
     }
+
+
+    async addDeadline(deadlineData) {
+        const response = await fetch(`${this.apiBase}/due_dates`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(deadlineData)
+        });
+        return await response.json();
+    }
 }
