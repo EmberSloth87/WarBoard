@@ -66,8 +66,18 @@ main.column {
     padding: 10px; /* Optional: padding inside each block for better readability */
 }
 
+/* ALGORITHM: Allow the focus blocks to take up all middle space, pushing deadlines to bottom */
 .deadlines-container {
     flex: .3;
     background-color: darkgray; /* Optional: visually distinguish the deadlines area */
     overflow-y: auto; /* Adds a vertical scrollbar if a day has TOO many deadlines */
+}
+
+.deadlines-container .deadline {
+    background-color: lightgray; /* Optional: visually distinguish individual blocks */
+    margin-top: 5px; /* Space between individual focus blocks */
+    margin-bottom: 5px; /* Space between individual focus blocks */
+    margin-left: 5px; /* Optional: slight left margin for better visual separation */
+    margin-right: 5px; /* Optional: slight right margin for better visual separation */
+    padding: 10px; /* Optional: padding inside each block for better readability */
 }

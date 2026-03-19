@@ -105,12 +105,6 @@ def create_project():
     
     return jsonify({'message': 'Project created successfully', 'id': new_project.id}), 201
 
-# ALGORITHM: Query the database for all projects and return them as a JSON list
-@api_bp.route('/projects', methods=['GET'])
-def get_all_projects():
-    projects = Project.query.all()
-    return jsonify([{'id': p.id, 'name': p.name, 'description': p.description} for p in projects]), 200
-
 # ALGORITHM: Find an existing project by ID and update its attributes based on provided JSON data
 @api_bp.route('/projects/<int:project_id>', methods=['PUT'])
 def update_project(project_id):
@@ -132,6 +126,18 @@ def delete_project(project_id):
     db.session.delete(project)
     db.session.commit()
     return jsonify({'message': 'Project deleted successfully'}), 200
+
+# ALGORITHM: Query the database for all projects and return them as a JSON list
+@api_bp.route('/projects', methods=['GET'])
+def get_all_projects():
+    projects = Project.query.all()
+    return jsonify([{'id': p.id, 'name': p.name, 'description': p.description} for p in projects]), 200
+
+# ALGORITHM: Fetch a single project by ID and return its details as JSON
+@api_bp.route('/projects/<int:project_id>', methods=['GET'])
+def get_project(project_id):
+    project = Project.query.get_or_404(project_id)
+    return jsonify({'id': project.id, 'name': project.name, 'description': project.description}), 200
 
 
 # ==========================================
@@ -165,7 +171,9 @@ def update_due_date(due_date_id):
     if 'title' in data: # Evaluates if the user provided a new title to update
         due_date.title = data['title']
     if 'time' in data: # Evaluates if the user provided a new time to update
-        due_date.time = datetime.strptime(data['time'], '%H:%M').time()
+        due_date.time = datetime.strptime(data['time'][0:5], '%H:%M').time()
+    if 'project_id' in data: # Evaluates if the user provided a new project association to update
+        due_date.project_id = data['project_id']
         
     db.session.commit()
     return jsonify({'message': 'Due date updated successfully'}), 200
@@ -187,6 +195,19 @@ def get_due_dates():
         'project_id': dd.project_id,
         'date': dd.date.isoformat() if dd.date else None
     } for dd in due_dates]), 200
+
+# ALGORITHM: Fetch a single Due Date by ID, including its associated tasks, and return it as JSON
+@api_bp.route('/due_dates/<int:due_date_id>', methods=['GET'])
+def get_due_date(due_date_id):
+    due_date = DueDate.query.get_or_404(due_date_id)
+    due_date_data = {
+        'id': due_date.id,
+        'title': due_date.title,
+        'date': due_date.date.isoformat(),
+        'time': due_date.time.isoformat() if due_date.time else None,
+        'project_id': due_date.project_id
+    }
+    return jsonify(due_date_data), 200
 
 # ==========================================
 # FOCUS BLOCK ROUTES
@@ -361,6 +382,19 @@ def delete_task(task_id):
     db.session.commit()
     return jsonify({'message': 'Task deleted successfully'}), 200
 
+# ALGORITHM: Fetch all Tasks and return them as JSON (primarily for debugging purposes, as we usually access tasks through their focus blocks)
+@api_bp.route('/tasks', methods=['GET'])
+def get_tasks():
+    tasks = Task.query.all()
+    return jsonify([{
+        'id': t.id, 
+        'name': t.name, 
+        'time_allocated': t.time_allocated, 
+        'order': t.order, 
+        'project_id': t.project_id,
+        'focus_block_id': t.focus_block_id
+    } for t in tasks]), 200
+
 
 # ==========================================
 # DAY ROUTES
@@ -370,3 +404,33 @@ def delete_task(task_id):
 def get_days():
     days = Day.query.order_by(Day.date).all()
     return jsonify([{'id': d.id, 'date': d.date.isoformat()} for d in days]), 200
+
+
+# ==========================================
+# CLEANUP ROUTE
+# ==========================================
+
+# Cleanup route to delete all past focus blocks and due dates to save memory
+@api_bp.route('/cleanup', methods=['DELETE'])
+def cleanup_past_info():
+    today = datetime.today().date()
+    
+    # ALGORITHM: Delete all focus blocks that are associated with days in the past
+    past_blocks = FocusBlock.query.join(Day).filter(Day.date < today).all()
+    for block in past_blocks:
+        db.session.delete(block)
+        
+    # ALGORITHM: Delete all due dates that are associated with days in the past
+    past_due_dates = DueDate.query.join(Day).filter(Day.date < today).all()
+    for due_date in past_due_dates:
+        db.session.delete(due_date)
+
+    # ALGORITHM: Delete all days that are in the past, which will cascade and delete any remaining associated focus blocks and due dates due to our relationship setup
+    past_days = Day.query.filter(Day.date < today).all()
+    for day in past_days:
+        db.session.delete(day)
+        
+    db.session.commit()
+    return jsonify({'message': 'Past focus blocks and due dates cleaned up successfully'}), 200
+
+

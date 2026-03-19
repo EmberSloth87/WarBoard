@@ -58,6 +58,8 @@ class WarBoardController {
     }
 
     async init() {
+        this.model.deletePastInfo(); // Clear out old data on initialization
+        
         const boardData = await this.model.getBoardData();
         const projectData = await this.model.getProjects();
         this.view.renderProjects(projectData);

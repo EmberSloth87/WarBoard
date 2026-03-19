@@ -119,7 +119,14 @@ class WarBoardView {
             deleteBtn.setAttribute('data-type', 'delete-project');
             deleteBtn.setAttribute('data-id', project.id);
             
-            projectDiv.appendChild(deleteBtn);
+            const editBtn = document.createElement('button');
+            editBtn.className = 'button is-small is-warning ml-2';
+            editBtn.id = 'editProjectBtn';
+            editBtn.setAttribute('data-type', 'edit-project');
+            editBtn.setAttribute('data-id', project.id);
+            editBtn.textContent = 'Edit';
+
+            projectDiv.appendChild(editBtn);
             projectDiv.appendChild(projectElement);
             this.projectList.appendChild(projectDiv);
         });
@@ -223,10 +230,48 @@ class WarBoardView {
     renderDeadlines(deadlines, container) {
         deadlines.forEach(deadline => {
             const deadlineElement = document.createElement('div');
-            deadlineElement.className = 'notification is-warning is-light selectable-item';
+            deadlineElement.className = 'deadline is-shadowless border-light';
             deadlineElement.setAttribute('data-type', 'deadline');
             deadlineElement.setAttribute('data-id', deadline.id);
-            deadlineElement.textContent = `${deadline.title} (Due: ${deadline.time ? deadline.time.substring(0, 5) : 'No time'})`;
+            // deadlineElement.textContent = `${deadline.title} (Due: ${deadline.time ? deadline.time.substring(0, 5) : 'No time'})`;
+
+            const line1 = document.createElement('div');
+            line1.className = 'is-flex is-justify-content-space-between is-align-items-center mb-1';
+
+            const line2 = document.createElement('div');
+            line2.className = 'is-flex is-align-items-center';
+
+            const projectElement = document.createElement('span');
+            projectElement.className = 'tag is-rounded is-info mr-2';
+            projectElement.textContent = deadline.project_name || 'No project';
+
+            const titleElement = document.createElement('span');
+            titleElement.className = 'has-text-weight-bold is-size-6 mb-1';
+            titleElement.textContent = deadline.title || 'untitled'; // Fallback title if none provided
+
+            const dueTimeElement = document.createElement('span');
+            dueTimeElement.className = 'tag is-rounded is-light ml-2';
+            const formattedDueTime = deadline.time ? deadline.time.substring(0, 5) : 'No time';
+            dueTimeElement.textContent = `Due: ${formattedDueTime}`;
+
+            const editButton = document.createElement('a');
+            editButton.href = `deadline_form.html?id=${deadline.id}`;
+            editButton.className = 'button is-small is-warning ml-auto';
+            editButton.innerHTML = '<span>Edit</span>';
+
+            const separator = document.createElement('div');
+            separator.className = 'is-flex-grow-1'; // This will push the Edit button to the right while keeping the title and time on the left
+
+            
+            line1.appendChild(titleElement);
+            line1.appendChild(separator);
+            line1.appendChild(editButton);
+
+            line2.appendChild(projectElement);
+            line2.appendChild(dueTimeElement);
+
+            deadlineElement.appendChild(line1);
+            deadlineElement.appendChild(line2);
             container.appendChild(deadlineElement);
         });
     }

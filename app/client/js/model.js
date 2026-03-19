@@ -5,6 +5,13 @@ class WarBoardModel {
         this.apiBase = 'http://127.0.0.1:5000/api'; // The base URL for our Flask routes
     }
 
+    async deletePastInfo() {
+        const response = await fetch(`${this.apiBase}/cleanup`, {
+            method: 'DELETE'
+        });
+        return await response.json();
+    }
+
     // ALGORITHM: Fetch 14-day board data from the server
     async getBoardData() {
         const response = await fetch(`${this.apiBase}/board`);
