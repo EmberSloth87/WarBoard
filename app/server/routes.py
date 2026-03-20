@@ -139,6 +139,29 @@ def get_project(project_id):
     project = Project.query.get_or_404(project_id)
     return jsonify({'id': project.id, 'name': project.name, 'description': project.description}), 200
 
+# ALGORITHM: Fetch all tasks associated with a specific project, which can be useful for the project detail view
+@api_bp.route('/projects/<int:project_id>/tasks', methods=['GET'])
+def get_project_tasks(project_id):
+    tasks = Task.query.filter_by(project_id=project_id).all()
+    return jsonify([{
+        'id': t.id,
+        'name': t.name,
+        'time_allocated': t.time_allocated,
+        'order': t.order,
+        'project_id': t.project_id,
+        'focus_block_id': t.focus_block_id
+    } for t in tasks]), 200
+
+@api_bp.route('/projects/<int:project_id>/due_dates', methods=['GET'])
+def get_project_due_dates(project_id):
+    due_dates = DueDate.query.filter_by(project_id=project_id).all()    
+    return jsonify([{
+        'id': dd.id, 
+        'title': dd.title, 
+        'time': dd.time.isoformat() if dd.time else None, 
+        'project_id': dd.project_id,
+        'date': dd.date.isoformat() if dd.date else None
+    } for dd in due_dates]), 200
 
 # ==========================================
 # DUE DATE ROUTES
@@ -260,10 +283,14 @@ def update_focus_block(block_id):
     db.session.commit()
     return jsonify({'message': 'Focus block updated successfully'}), 200
 
-#ALGORITHM: Find a Focus Block by ID and remove it from the database
+# ALGORITHM: Find a Focus Block by ID and remove it from the database, along with all associated tasks due to our relationship setup
 @api_bp.route('/focus_blocks/<int:block_id>', methods=['DELETE'])
 def delete_focus_block(block_id):
     block = FocusBlock.query.get_or_404(block_id)
+    tasks = Task.query.filter_by(focus_block_id=block.id).all()
+    for task in tasks:
+        db.session.delete(task)
+
     db.session.delete(block)
     db.session.commit()
     return jsonify({'message': 'Focus block deleted successfully'}), 200
@@ -395,7 +422,6 @@ def get_tasks():
         'focus_block_id': t.focus_block_id
     } for t in tasks]), 200
 
-
 # ==========================================
 # DAY ROUTES
 # ==========================================
@@ -429,6 +455,12 @@ def cleanup_past_info():
     past_days = Day.query.filter(Day.date < today).all()
     for day in past_days:
         db.session.delete(day)
+
+    # ALGORITHM: Delete all tasks that are associated with focus blocks that have been deleted, ensuring we don't leave orphaned tasks in the database
+    for block in past_blocks:
+        tasks = Task.query.filter_by(focus_block_id=block.id).all()
+        for task in tasks:
+            db.session.delete(task)
         
     db.session.commit()
     return jsonify({'message': 'Past focus blocks and due dates cleaned up successfully'}), 200

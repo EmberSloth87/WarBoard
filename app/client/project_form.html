@@ -23,17 +23,53 @@
                 </span>
             </h2>
             
+            <div class="columns">
+                <div class="column is-half">
+                    <div class="field">
+                        <label for="name" class="label">
+                            Project Name
+                            <span class="has-text-danger">*</span>
+                        </label>
+                        <div class="control">
+                            <input type="text" id="name" name="name" required class="input">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Future feature: Project Color -->
+            <!--- 
+                <div class="column is-half">
+                    <div class="field">
+                        <label for="projectColor" class="label">Project Color</label>
+                        <div class="control">
+                            <input type="color" id="projectColor" name="projectColor" class="input" value="#ff0000">
+                        </div>
+                    </div>
+                </div>
+            -->
+            </div>
+
             <div class="field">
                 <label for="name" class="label">
-                    Project Name
+                    Project Description
                     <span class="has-text-danger">*</span>
                 </label>
                 <div class="control">
-                    <input type="text" id="name" name="name" required class="input">
+                    <textarea id="description" name="description" class="textarea mt-2" placeholder="Enter a brief description of the project..."></textarea>
                 </div>
             </div>
-            
-            
+
+            <div class="box">
+                <h3 class="title is-5">Associated Deadlines</h3>
+                <div id="associated-deadlines-container" class="box has-background-grey-lighter">
+                    <!-- Dynamically populated list of associated deadlines will go here -->
+                </div>
+                
+                <h3 class="title is-5">Associated Tasks</h3>
+                <div id="associated-tasks-container" class="box has-background-grey-lighter">
+                    <!-- Dynamically populated list of associated tasks will go here -->
+                </div>
+            </div>
 
 
             <div class="field is-grouped mt-5">
@@ -52,8 +88,8 @@
                 <div class="control is-expanded"></div>
 
                 <div class="control">
-                    <button type="button" id="delete-deadline-btn" class="button is-danger">
-                        <span>Delete Deadline</span>
+                    <button type="button" id="delete-project-btn" class="button is-danger">
+                        <span>Delete Project</span>
                     </button>
                 </div>
             </div>

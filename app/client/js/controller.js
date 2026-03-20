@@ -64,23 +64,6 @@ class WarBoardController {
         const projectData = await this.model.getProjects();
         this.view.renderProjects(projectData);
         this.view.renderBoard(boardData);
-        this.setupDragAndDrop();
-    }
-
-    // ALGORITHM: Initialize SortableJS on all task lists to handle reordering
-    setupDragAndDrop() {
-        document.querySelectorAll('.task-list').forEach(list => {
-            new Sortable(list, {
-                group: 'tasks',
-                animation: 150,
-                onEnd: (evt) => {
-                    // Evaluates the new position index after the drop is completed
-                    const taskId = evt.item.dataset.id;
-                    const newIndex = evt.newIndex;
-                    this.model.updateTaskOrder(taskId, newIndex);
-                }
-            });
-        });
     }
 
     // ALGORITHM: Handle the "Add Project" button click by prompting for a name and sending it to the server

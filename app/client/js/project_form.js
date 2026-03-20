@@ -2,9 +2,9 @@ class ProjectEditor {
     constructor() {
         this.apiBase = 'http://127.0.0.1:5000/api';
         
-        // ALGORITHM: Extract the block ID from the current browser URL parameters
+        // ALGORITHM: Extract the project ID from the current browser URL parameters
         const urlParams = new URLSearchParams(window.location.search);
-        this.deadlineId = urlParams.get('id'); 
+        this.projectId = urlParams.get('id'); 
         
         this.tasks = []; // Stores our local copy of the task data
         
@@ -13,47 +13,94 @@ class ProjectEditor {
 
     // ALGORITHM: Master initialization method that fetches data and binds all button listeners
     async init() {
-        if (!this.deadlineId) {
-            alert('No Deadline ID provided!');
+        if (!this.projectId) {
+            alert('No Project ID provided!');
             this.redirectHome();
             return;
         }
 
-        await this.loadProjects();
-        await this.loadDeadlineData();
+        await this.loadProjectData();
         this.bindEvents();
     }
 
-    // ALGORITHM: Fetch projects from the API and populate the dropdown menu
-    async loadProjects() {
-        const response = await fetch(`${this.apiBase}/projects`);
-        const projects = await response.json();
-        
-        const projectSelect = document.getElementById('task-project');
-        projects.forEach(project => {
-            const option = document.createElement('option');
-            option.value = project.id;
-            option.textContent = project.name;
-            projectSelect.appendChild(option);
-        });
-    }
-
-    // ALGORITHM: Fetch the specific focus block data and populate the form inputs
-    async loadDeadlineData() {
-        const response = await fetch(`${this.apiBase}/due_dates/${this.deadlineId}`);
-        const deadline = await response.json();
+    // ALGORITHM: Fetch the specific project data and populate the form inputs
+    async loadProjectData() {
+        const response = await fetch(`${this.apiBase}/projects/${this.projectId}`);
+        const project = await response.json();
 
         // Populate the main form fields
-        document.getElementById('title').value = deadline.title || '';
+        document.getElementById('name').value = project.name || '';
+        document.getElementById('description').value = project.description || '';
 
-        document.getElementById('deadline-time').value = deadline.time || '';
+        // Load associated deadlines and tasks
+        await this.renderDeadlines();
+        await this.renderTasks();
+
+    }
+
+    async renderDeadlines() {
+        const response = await fetch(`${this.apiBase}/projects/${this.projectId}/due_dates`);
+        const deadlines = await response.json();
+        // Populate the deadlines container
+        const container = document.getElementById('associated-deadlines-container');
+        //container.innerHTML = deadlines.map(d => `<p>${d.title}</p>`).join('');
+
+        // ALGORITHM: Sort deadlines by their due date (soonest first) before rendering. If two deadlines have the same date, they will be sorted by their time in chronological order.
+        deadlines.sort((a, b) => {
+            const dateA = new Date(a.date);
+            const dateB = new Date(b.date);
+            if (dateA.getTime() === dateB.getTime()) {
+                return new Date(a.time) - new Date(b.time);
+            }
+            return dateA.getTime() - dateB.getTime();
+        });
+
+        // ALGORITHM: Render each deadline as a box with its title and due date/time.
+        deadlines.forEach(deadline => {
+            const deadlineDiv = document.createElement('div');
+            deadlineDiv.className = 'box mb-2 p-3 is-flex is-align-items-center';
+            const deadlineElement = document.createElement('p');
+            deadlineElement.textContent = `${deadline.title} - Due: ${deadline.date} ${deadline.time}`;
+            deadlineDiv.appendChild(deadlineElement);
+            container.appendChild(deadlineDiv);
+        });
+
+    }
+
+    async renderTasks() {
+        const response = await fetch(`${this.apiBase}/projects/${this.projectId}/tasks`);
+        const tasks = await response.json();
+        // Populate the tasks container
+        const container = document.getElementById('associated-tasks-container');
+
+        //container.innerHTML = tasks.map(t => `<p>${t.name}</p>`).join('');
+
+        // ALGORITHM: Sort tasks by their due date (soonest first) before rendering. If two tasks have the same date, they will be sorted by their time in chronological order.
+        tasks.sort((a, b) => {
+            const dateA = new Date(a.date);
+            const dateB = new Date(b.date);
+            if (dateA.getTime() === dateB.getTime()) {
+                return new Date(a.time) - new Date(b.time);
+            }
+            return dateA.getTime() - dateB.getTime();
+        });
+
+        // ALGORITHM: Render each task as a box with its title and due date/time.
+        tasks.forEach(task => {
+            const taskDiv = document.createElement('div');
+            taskDiv.className = 'box mb-2 p-3 is-flex is-align-items-center';
+            const taskElement = document.createElement('p');
+            taskElement.textContent = `${task.name}`;
+            taskDiv.appendChild(taskElement);
+            container.appendChild(taskDiv);
+        });
 
     }
 
     // ALGORITHM: Attach event listeners to the static form buttons and the dynamic task container
     bindEvents() {
-        document.getElementById('details-form').addEventListener('submit', (e) => this.handleUpdateDeadline(e));
-        document.getElementById('delete-deadline-btn').addEventListener('click', () => this.handleDeleteDeadline());
+        document.getElementById('details-form').addEventListener('submit', (e) => this.handleUpdateProject(e));
+        document.getElementById('delete-project-btn').addEventListener('click', () => this.handleDeleteProject());
         
         // Find the cancel button (it's the only is-light button in the grouped field)
         const cancelBtn = document.querySelector('.field.is-grouped .button.is-light');
@@ -61,26 +108,21 @@ class ProjectEditor {
     }
 
     // ALGORITHM: Gather form data, send PUT request for the block, and redirect
-    async handleUpdateDeadline(e) {
+    async handleUpdateProject(e) {
         e.preventDefault(); // Stop the form from refreshing the page
 
         const updateData = {
-            title: document.getElementById('title').value,
-            time: document.getElementById('deadline-time').value,
-            project_id: document.getElementById('task-project').value || null
+            name: document.getElementById('name').value.trim(),
+            description: document.getElementById('description').value.trim()
         };
 
-        if (!updateData.title) {
-            alert('Title is required!');
-            return;
-        }
-        else if (!updateData.time) {
-            alert('Time is required!');
+        if (!updateData.name) {
+            alert('Name is required!');
             return;
         }
 
 
-        const response = await fetch(`${this.apiBase}/due_dates/${this.deadlineId}`, {
+        const response = await fetch(`${this.apiBase}/projects/${this.projectId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updateData)
@@ -94,9 +136,9 @@ class ProjectEditor {
     }
 
     // ALGORITHM: Send DELETE request for the entire block and redirect
-    async handleDeleteDeadline() {
-        if (confirm('Are you sure you want to delete this deadline?')) {
-            const response = await fetch(`${this.apiBase}/due_dates/${this.deadlineId}`, { method: 'DELETE' });
+    async handleDeleteProject() {
+        if (confirm('Are you sure you want to delete this project?')) {
+            const response = await fetch(`${this.apiBase}/projects/${this.projectId}`, { method: 'DELETE' });
             if (response.ok) {
                 this.redirectHome();
             }
@@ -111,5 +153,5 @@ class ProjectEditor {
 
 // Boot up the editor once the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
-    new DeadlineEditor();
+    new ProjectEditor();
 });

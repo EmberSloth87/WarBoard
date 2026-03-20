@@ -2,7 +2,7 @@ class DeadlineEditor {
     constructor() {
         this.apiBase = 'http://127.0.0.1:5000/api';
         
-        // ALGORITHM: Extract the block ID from the current browser URL parameters
+        // ALGORITHM: Extract the deadline ID from the current browser URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         this.deadlineId = urlParams.get('id'); 
         

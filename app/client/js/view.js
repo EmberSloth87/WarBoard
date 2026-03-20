@@ -119,8 +119,9 @@ class WarBoardView {
             deleteBtn.setAttribute('data-type', 'delete-project');
             deleteBtn.setAttribute('data-id', project.id);
             
-            const editBtn = document.createElement('button');
+            const editBtn = document.createElement('a');
             editBtn.className = 'button is-small is-warning ml-2';
+            editBtn.href = `project_form.html?id=${project.id}`;
             editBtn.id = 'editProjectBtn';
             editBtn.setAttribute('data-type', 'edit-project');
             editBtn.setAttribute('data-id', project.id);
