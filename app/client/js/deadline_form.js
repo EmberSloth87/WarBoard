@@ -41,10 +41,14 @@ class DeadlineEditor {
     // ALGORITHM: Fetch the specific focus block data and populate the form inputs
     async loadDeadlineData() {
         const response = await fetch(`${this.apiBase}/due_dates/${this.deadlineId}`);
+        const projects = await fetch(`${this.apiBase}/projects`).then(res => res.json());
         const deadline = await response.json();
 
         // Populate the main form fields
         document.getElementById('title').value = deadline.title || '';
+
+        // ALGORITHM: Set the project dropdown to the correct value by querying for the project name using the project ID
+        document.getElementById('task-project').value = projects.find(p => p.id === deadline.project_id)?.id || '';
 
         document.getElementById('deadline-time').value = deadline.time || '';
 

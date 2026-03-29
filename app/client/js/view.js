@@ -6,8 +6,14 @@ class WarBoardView {
         this.projectList = document.querySelector("#projectList");
     }
 
+    getProjectElement(projectId) {
+        return this.projectList.querySelector(`.panel-block[data-id="${projectId}"]`);
+    }
+
     getBlocksContainer(date) {
         const dayColumn = this.board.querySelector(`.day-column[data-date="${date}"]`);
+        console.log('getBlocksContainer called with date:', date, 'Found dayColumn:', dayColumn);
+        
         return dayColumn ? dayColumn.querySelector('.focus-blocks-container') : null;
     }
 
@@ -24,9 +30,16 @@ class WarBoardView {
             col.className = 'column is-narrow day-column'; // is-narrow allows horizontal scroll logic
             
             // Sort focus blocks chronologically by start_time
-            const sortedBlocks = day.focus_blocks.sort((a, b) => 
-                new Date(a.start_time) - new Date(b.start_time)
+            let sortedBlocks = day.focus_blocks.sort((a, b) => 
+                a.start_time.localeCompare(b.start_time)
             );
+
+            // Sort deadlines chronologically by start_time
+            let sortedDeadlines = day.due_dates.sort((a, b) => 
+                a.time.localeCompare(b.time)
+            );
+
+            console.log('Rendering day:', day.date, 'with sorted blocks:', sortedBlocks);
 
             const colContainer = document.createElement('div');
             colContainer.className = 'box p-2';
@@ -58,22 +71,22 @@ class WarBoardView {
             const createBlockBtn = document.createElement('button');
             createBlockBtn.className = 'button is-small is-primary is-fullwidth';
             createBlockBtn.id = 'addBlockBtn'
-            createBlockBtn.textContent = '+';
+            createBlockBtn.textContent = 'Add Focus Block';
             createBlockBtn.setAttribute('data-date', day.date);
 
             
             const deadlinesContainer = document.createElement('div');
             deadlinesContainer.className = 'deadlines-container mt-2';
-            this.renderDeadlines(day.due_dates, deadlinesContainer);
+            this.renderDeadlines(sortedDeadlines, deadlinesContainer);
             
             const createDeadlineBtn = document.createElement('button');
             createDeadlineBtn.className = 'button is-small is-primary is-fullwidth';
             createDeadlineBtn.id = 'addDeadlineBtn';
-            createDeadlineBtn.textContent = '+';
+            createDeadlineBtn.textContent = 'Add Deadline';
             createDeadlineBtn.setAttribute('data-date', day.date);
             
             const noDeadlinesElement = document.createElement('p');
-            if (!day.due_dates || day.due_dates.length === 0) {
+            if (!sortedDeadlines || sortedDeadlines.length === 0) {
                 noDeadlinesElement.className = 'is-size-5 is-bold has-text-black-bis is-flex is-justify-content-center mt-4';
                 noDeadlinesElement.textContent = 'No deadlines due';
             }
@@ -112,12 +125,6 @@ class WarBoardView {
             projectElement.setAttribute('data-type', 'project');
             projectElement.setAttribute('data-id', project.id);
             projectElement.textContent = project.name;
-
-            const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'delete is-small ml-2';
-            deleteBtn.id = 'deleteProjectBtn';
-            deleteBtn.setAttribute('data-type', 'delete-project');
-            deleteBtn.setAttribute('data-id', project.id);
             
             const editBtn = document.createElement('a');
             editBtn.className = 'button is-small is-warning ml-2';
@@ -203,11 +210,17 @@ class WarBoardView {
                     taskText.className = 'ml-2 is-size-6';
                     taskText.textContent = t.name;
 
+                    const taskProject = document.createElement('span');
+                    taskProject.className = 'tag is-rounded is-info ml-2';
+                    taskProject.textContent = t.project_id ? (this.getProjectElement(t.project_id)?.textContent || 'Unknown Project') : 'No Project';
+
                     const taskTime = document.createElement('span');
                     taskTime.className = 'tag is-rounded is-light ml-auto';
                     const taskDuration = `${t.time_allocated}m`;
                     taskTime.textContent = taskDuration;
 
+                    
+                    taskDiv.appendChild(taskProject);
                     taskDiv.appendChild(taskText);
                     taskDiv.appendChild(taskTime);
                     tasksContainer.appendChild(taskDiv);
@@ -244,7 +257,10 @@ class WarBoardView {
 
             const projectElement = document.createElement('span');
             projectElement.className = 'tag is-rounded is-info mr-2';
-            projectElement.textContent = deadline.project_name || 'No project';
+            // ALGORITHM: Query for the project name using the project ID
+            // Display the project name associated with the deadline, or a default message if none exists
+            projectElement.textContent = deadline.project_id ? (this.getProjectElement(deadline.project_id)?.textContent || 'Unknown Project') : 'No Project';
+            
 
             const titleElement = document.createElement('span');
             titleElement.className = 'has-text-weight-bold is-size-6 mb-1';

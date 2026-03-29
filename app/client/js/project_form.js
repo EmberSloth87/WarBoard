@@ -65,6 +65,12 @@ class ProjectEditor {
             container.appendChild(deadlineDiv);
         });
 
+        if (deadlines.length === 0) {
+            const noDeadlinesElement = document.createElement('p');
+            noDeadlinesElement.textContent = 'No deadlines associated with this project.';
+            container.appendChild(noDeadlinesElement);
+        }
+
     }
 
     async renderTasks() {
@@ -94,6 +100,12 @@ class ProjectEditor {
             taskDiv.appendChild(taskElement);
             container.appendChild(taskDiv);
         });
+
+        if (tasks.length === 0) {
+            const noTasksElement = document.createElement('p');
+            noTasksElement.textContent = 'No tasks associated with this project.';
+            container.appendChild(noTasksElement);
+        }
 
     }
 

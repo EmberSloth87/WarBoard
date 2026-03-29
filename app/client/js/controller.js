@@ -74,8 +74,12 @@ class WarBoardController {
             this.model.addProject({ name: projectName }).then(newProject => {
                 // Update the UI to include the new project
                 this.view.renderProjects([newProject]);
+
+                // ALGORITHM: After creating a new project, navigate to its form page for further editing
+                window.location.href = `project_form.html?id=${newProject.id}`
             });
         }
+        
     }
 
     // ALGORITHM: Handle the "Add Block" button click by creating a new block with default values and sending it to the server
@@ -90,9 +94,10 @@ class WarBoardController {
             duration: 60
         };
         this.model.addBlock(blockData).then(newBlock => {
-            // Update the UI to include the new block
-            this.view.renderBlocks([newBlock], this.view.getBlocksContainer(date));
-        });       
+            // ALGORITHM: After creating a new block, navigate to its form page for further editing
+            window.location.href = `focus_block_form.html?id=${newBlock.id}`
+            
+        });
     }
 
     async handleAddDeadline(date) {
@@ -104,9 +109,10 @@ class WarBoardController {
             time: '23:59'
         };
         this.model.addDeadline(deadlineData).then(newDeadline => {
-            // Update the UI to include the new block
-            this.view.renderBlocks([newDeadline], this.view.getDeadlinesContainer(date));
-        });       
+            // ALGORITHM: After creating a new block, navigate to its form page for further editing
+            window.location.href = `deadline_form.html?id=${newDeadline.id}`
+            
+        });
     }
 
     // ALGORITHM: Handle clicks on tasks/projects specifically during deadline selection

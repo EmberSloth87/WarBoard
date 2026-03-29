@@ -7,6 +7,8 @@ class FocusBlockEditor {
         this.blockId = urlParams.get('id'); 
         
         this.tasks = []; // Stores our local copy of the task data
+
+        this.projects = []; // Store projects for easy access when rendering tasks
         
         this.init();
     }
@@ -36,6 +38,7 @@ class FocusBlockEditor {
             option.textContent = project.name;
             projectSelect.appendChild(option);
         });
+        this.projects = projects; // Save for later use when rendering tasks
     }
 
     // ALGORITHM: Fetch the specific focus block data and populate the form inputs
@@ -67,7 +70,7 @@ class FocusBlockEditor {
             taskBox.dataset.id = task.id; // Store ID on the element for easy access later
             
             // Format project name gracefully if it doesn't exist
-            const projectName = task.project_id ? `Project ID: ${task.project_id}` : 'No Project';
+            const projectName = task.project_id ? `Project: ${this.projects.find(p => p.id === task.project_id)?.name || 'Unknown Project'}` : 'No Project';
 
             taskBox.innerHTML = `
                 <div>
@@ -85,17 +88,28 @@ class FocusBlockEditor {
             `;
             container.appendChild(taskBox);
         });
+
+        if (this.tasks.length === 0) {
+            const emptyMessage = document.createElement('p');
+            emptyMessage.className = 'has-text-centered has-text-grey';
+            emptyMessage.textContent = 'No tasks added yet. Use the form below to add your first task!';
+            container.appendChild(emptyMessage);
+        }
     }
 
     // ALGORITHM: Attach event listeners to the static form buttons and the dynamic task container
     bindEvents() {
-        document.getElementById('add-task-btn').addEventListener('click', () => this.handleAddTask());
+        // ALGORITHM: Catch ALL submission attempts (clicks OR Enter key)
+        const form = document.getElementById('details-form');
+
+        document.getElementById('add-task-btn').addEventListener('click', (e) => {e.preventDefault(); this.handleAddTask(e)});
         document.getElementById('details-form').addEventListener('submit', (e) => this.handleUpdateBlock(e));
         document.getElementById('delete-focus-block-btn').addEventListener('click', () => this.handleDeleteBlock());
         
         // Find the cancel button (it's the only is-light button in the grouped field)
         const cancelBtn = document.querySelector('.field.is-grouped .button.is-light');
         if (cancelBtn) cancelBtn.addEventListener('click', () => this.redirectHome());
+        
 
         // Event Delegation for dynamically rendered task buttons
         document.getElementById('tasks-container').addEventListener('click', (e) => {
@@ -110,10 +124,19 @@ class FocusBlockEditor {
     }
 
     // ALGORITHM: Gather task input data, POST to API, and re-render the list
-    async handleAddTask() {
+    async handleAddTask(e) {
+        if (e) e.preventDefault();
+
         const nameInput = document.getElementById('task-name');
         const projectInput = document.getElementById('task-project');
         const durationInput = document.getElementById('task-duration');
+
+        // ALGORITHM: Save the current block form data so we can restore it after the page refreshes from adding a task
+        const savedData = {
+            title: document.getElementById('title').value,
+            start_time: document.getElementById('start_time').value,
+            duration: document.getElementById('duration').value
+        };
 
         if (!nameInput.value) {
             alert('Task name is required!');
@@ -143,6 +166,12 @@ class FocusBlockEditor {
             nameInput.value = '';
             projectInput.value = '';
             durationInput.value = '';
+
+            document.getElementById('title').value = savedData.title || '';
+
+            document.getElementById('start_time').value = savedData.start_time || '';
+        
+            document.getElementById('duration').value = savedData.duration || '';
             
             this.renderTasks();
         }
@@ -244,3 +273,4 @@ class FocusBlockEditor {
 document.addEventListener('DOMContentLoaded', () => {
     new FocusBlockEditor();
 });
+
