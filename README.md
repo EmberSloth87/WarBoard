@@ -32,6 +32,7 @@ The WarBoard is designed to be your "Command Center." Here is how you interact w
 
 * **Watch the Cleanup:** The Board automatically sweeps away past days and orphaned data, keeping your interface clean, fast, and focused on the present moment.
 
+For more information, sample images are available in the **demo** folder of this repository.
 
 ## How to Install and Run Locally
 You don't need to be a computer scientist to run the WarBoard. Follow these steps to get set up on your own machine.
