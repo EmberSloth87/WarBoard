@@ -1,12 +1,15 @@
 class ProjectEditor {
     constructor() {
-        this.apiBase = 'http://127.0.0.1:5000/api';
+        this.apiBase = '/api';
         
         // ALGORITHM: Extract the project ID from the current browser URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        this.projectId = urlParams.get('id'); 
+        this.projectId = window.location.pathname.split('/').pop();
         
         this.tasks = []; // Stores our local copy of the task data
+
+        this.deadlines = []; // Stores our local copy of the deadline data
+
+        this.focusBlocks = []; // Stores our local copy of the focus block data
         
         this.init();
     }
@@ -19,8 +22,27 @@ class ProjectEditor {
             return;
         }
 
+        this.deadlines = await this.fetchDeadlines();
+        this.tasks = await this.fetchTasks();
+        this.focusBlocks = await this.fetchFocusBlocks();
+
         await this.loadProjectData();
         this.bindEvents();
+    }
+
+    async fetchDeadlines() {
+        const response = await fetch(`${this.apiBase}/projects/${this.projectId}/due_dates`);
+        return await response.json();
+    }
+
+    async fetchTasks() {
+        const response = await fetch(`${this.apiBase}/projects/${this.projectId}/tasks`);
+        return await response.json();
+    }
+
+    async fetchFocusBlocks() {
+        const response = await fetch(`${this.apiBase}/focus_blocks`);
+        return await response.json();
     }
 
     // ALGORITHM: Fetch the specific project data and populate the form inputs
@@ -43,7 +65,6 @@ class ProjectEditor {
         const deadlines = await response.json();
         // Populate the deadlines container
         const container = document.getElementById('associated-deadlines-container');
-        //container.innerHTML = deadlines.map(d => `<p>${d.title}</p>`).join('');
 
         // ALGORITHM: Sort deadlines by their due date (soonest first) before rendering. If two deadlines have the same date, they will be sorted by their time in chronological order.
         deadlines.sort((a, b) => {
@@ -59,9 +80,19 @@ class ProjectEditor {
         deadlines.forEach(deadline => {
             const deadlineDiv = document.createElement('div');
             deadlineDiv.className = 'box mb-2 p-3 is-flex is-align-items-center';
-            const deadlineElement = document.createElement('p');
-            deadlineElement.textContent = `${deadline.title} - Due: ${deadline.date} ${deadline.time}`;
-            deadlineDiv.appendChild(deadlineElement);
+            
+            const deadlineDateTimeElement = document.createElement('span');
+            deadlineDateTimeElement.className = 'tag is-spaced is-rounded is-light ml-auto';
+            deadlineDateTimeElement.textContent = `${deadline.date} ${deadline.time}`;
+
+            const deadlineTitleElement = document.createElement('p');
+            deadlineTitleElement.className = 'has-text-weight-bold';
+            deadlineTitleElement.textContent = deadline.title;
+
+            
+            deadlineDiv.appendChild(deadlineTitleElement);
+            deadlineDiv.appendChild(deadlineDateTimeElement);
+
             container.appendChild(deadlineDiv);
         });
 
@@ -79,8 +110,6 @@ class ProjectEditor {
         // Populate the tasks container
         const container = document.getElementById('associated-tasks-container');
 
-        //container.innerHTML = tasks.map(t => `<p>${t.name}</p>`).join('');
-
         // ALGORITHM: Sort tasks by their due date (soonest first) before rendering. If two tasks have the same date, they will be sorted by their time in chronological order.
         tasks.sort((a, b) => {
             const dateA = new Date(a.date);
@@ -91,13 +120,36 @@ class ProjectEditor {
             return dateA.getTime() - dateB.getTime();
         });
 
-        // ALGORITHM: Render each task as a box with its title and due date/time.
+        // ALGORITHM: Render each task as a box with its title and focus block information (date and time) and order within the focus block.
         tasks.forEach(task => {
+            // ALGORITHM: For each task, find the associated focus block to display its date and time. If the focus block is missing (which shouldn't happen), display "No Focus Block".
+            const focusBlock = this.focusBlocks.find(fb => fb.id === task.focus_block_id);
+
+            const focusBlockNameElement = document.createElement('span');
+            focusBlockNameElement.className = 'tag is-spaced is-rounded is-info ml-2';
+            focusBlockNameElement.textContent = focusBlock ? focusBlock.title : 'No Focus Block';
+
+            const focusBlockDateTimeElement = document.createElement('span');
+            focusBlockDateTimeElement.className = 'tag is-spaced is-rounded is-light ml-2';
+            focusBlockDateTimeElement.textContent = focusBlock ? `${focusBlock.date} ${focusBlock.start_time}` : '';
+
+            const focusBlockOrderElement = document.createElement('span');
+            focusBlockOrderElement.className = 'tag is-spaced is-rounded is-light ml-2';
+            focusBlockOrderElement.textContent = focusBlock ? `Task #${task.order}` : '';
+
             const taskDiv = document.createElement('div');
             taskDiv.className = 'box mb-2 p-3 is-flex is-align-items-center';
             const taskElement = document.createElement('p');
             taskElement.textContent = `${task.name}`;
+
+            taskDiv.appendChild(focusBlockNameElement);
+            if (focusBlock) {
+                taskDiv.appendChild(focusBlockDateTimeElement);
+                taskDiv.appendChild(focusBlockOrderElement);
+            }
+            
             taskDiv.appendChild(taskElement);
+
             container.appendChild(taskDiv);
         });
 
@@ -159,7 +211,7 @@ class ProjectEditor {
 
     // ALGORITHM: Act like a digital traffic cop and send the user back to the main board
     redirectHome() {
-        window.location.href = 'index.html'; 
+        window.location.href = '/'; // Redirect to the main board page (adjust if your homepage is different)
     }
 }
 

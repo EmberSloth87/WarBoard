@@ -1,10 +1,9 @@
 class FocusBlockEditor {
     constructor() {
-        this.apiBase = 'http://127.0.0.1:5000/api';
+        this.apiBase = '/api';
         
-        // ALGORITHM: Extract the block ID from the current browser URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        this.blockId = urlParams.get('id'); 
+        // ALGORITHM: Extract the block ID from the URL Path (e.g., /api/focus-block-form/123)
+        this.blockId = window.location.pathname.split('/').pop(); // Get the last segment of the path as the block ID
         
         this.tasks = []; // Stores our local copy of the task data
 
@@ -70,22 +69,53 @@ class FocusBlockEditor {
             taskBox.dataset.id = task.id; // Store ID on the element for easy access later
             
             // Format project name gracefully if it doesn't exist
-            const projectName = task.project_id ? `Project: ${this.projects.find(p => p.id === task.project_id)?.name || 'Unknown Project'}` : 'No Project';
+            const projectName = task.project_id ? `${this.projects.find(p => p.id === task.project_id)?.name || 'Unknown Project'}` : 'No Project';
 
-            taskBox.innerHTML = `
-                <div>
-                    <p class="is-size-7 has-text-grey">${projectName}</p>
-                    <p class="has-text-weight-bold">${task.name}</p>
-                    <p class="is-size-7">${task.time_allocated} mins</p>
-                </div>
-                <div class="is-flex is-align-items-center">
-                    <div class="is-flex is-flex-direction-column mr-3">
-                        <button type="button" class="button is-small is-light move-up-btn" data-index="${index}">▲</button>
-                        <button type="button" class="button is-small is-light move-down-btn mt-1" data-index="${index}">▼</button>
-                    </div>
-                    <button type="button" class="button is-danger is-small delete-task-btn" data-id="${task.id}">X</button>
-                </div>
-            `;
+            const projectNameElement = document.createElement('span');
+            projectNameElement.className = 'tag is-spaced is-rounded is-info ml-2';
+            projectNameElement.textContent = projectName;
+
+            const taskNameElement = document.createElement('span');
+            taskNameElement.className = 'has-text-weight-bold is-spaced';
+            taskNameElement.textContent = task.name;
+
+            const timeElement = document.createElement('span');
+            timeElement.className = 'tag is-spaced is-rounded is-light ml-auto';
+            timeElement.textContent = `${task.time_allocated} mins`;
+
+            const operationsDiv = document.createElement('div');
+            operationsDiv.className = 'is-flex is-align-items-center';
+
+            const reorderDiv = document.createElement('div');
+            reorderDiv.className = 'is-flex is-flex-direction-column mr-3';
+            const moveUpBtn = document.createElement('button');
+            moveUpBtn.type = 'button';
+            moveUpBtn.className = 'button is-small is-light move-up-btn';
+            moveUpBtn.dataset.index = index;
+            moveUpBtn.textContent = '▲';
+
+            const moveDownBtn = document.createElement('button');
+            moveDownBtn.type = 'button';
+            moveDownBtn.className = 'button is-small is-light move-down-btn mt-1';
+            moveDownBtn.dataset.index = index;
+            moveDownBtn.textContent = '▼';
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.type = 'button';
+            deleteBtn.className = 'button is-danger is-small delete-task-btn';
+            deleteBtn.dataset.id = task.id;
+            deleteBtn.textContent = 'X';
+
+            reorderDiv.appendChild(moveUpBtn);
+            reorderDiv.appendChild(moveDownBtn);
+            operationsDiv.appendChild(reorderDiv);
+            operationsDiv.appendChild(deleteBtn);
+
+            taskBox.appendChild(projectNameElement);
+            taskBox.appendChild(taskNameElement);
+            taskBox.appendChild(timeElement);
+            taskBox.appendChild(operationsDiv);
+
             container.appendChild(taskBox);
         });
 
@@ -145,10 +175,11 @@ class FocusBlockEditor {
 
         const newTaskData = {
             name: nameInput.value,
-            project_id: projectInput.value || null,
+            // EVALUATES: Converts the string ID from the input into an integer or null if empty
+            project_id: projectInput.value ? parseInt(projectInput.value) : null, 
             time_allocated: parseInt(durationInput.value) || 0,
             focus_block_id: this.blockId,
-            order: this.tasks.length // Place new task at the very end
+            order: this.tasks.length 
         };
 
         const response = await fetch(`${this.apiBase}/tasks`, {
@@ -162,6 +193,8 @@ class FocusBlockEditor {
             newTaskData.id = createdTask.id; 
             this.tasks.push(newTaskData); 
             
+            this.renderTasks();
+            
             // Clear inputs for the next task
             nameInput.value = '';
             projectInput.value = '';
@@ -173,7 +206,6 @@ class FocusBlockEditor {
         
             document.getElementById('duration').value = savedData.duration || '';
             
-            this.renderTasks();
         }
     }
 
@@ -265,7 +297,7 @@ class FocusBlockEditor {
 
     // ALGORITHM: Act like a digital traffic cop and send the user back to the main board
     redirectHome() {
-        window.location.href = 'index.html'; 
+        window.location.href = '/'; // Redirect to the main board page (adjust if your homepage is different)
     }
 }
 

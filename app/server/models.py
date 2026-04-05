@@ -36,7 +36,7 @@ class FocusBlock(db.Model):
 
     date = db.Column(db.Date, db.ForeignKey('day.date'), nullable=False)
 
-    tasks = db.relationship('Task', backref='focus_block', lazy=True)
+    tasks = db.relationship('Task', backref='focus_block', lazy=True, cascade='all, delete-orphan')
 
     '''
     Tasks are created within a focus block, and multiple tasks can be associated with a single focus block. 

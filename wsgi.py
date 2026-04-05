@@ -6,3 +6,4 @@ app = create_app()
 
 if __name__ == "__main__":
     app.run() # Evaluates if the script is being run directly to start the local server
+

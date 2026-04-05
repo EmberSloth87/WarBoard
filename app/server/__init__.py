@@ -6,7 +6,9 @@ WarBoard app initialization
 @version: 2025.12
 """
 
-from flask import Flask, redirect, url_for
+import os
+
+from flask import Flask, redirect, render_template, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_cors import CORS
@@ -17,7 +19,10 @@ migrate = Migrate()
 
 
 def create_app(config_class=None):
-    app = Flask(__name__)
+    template_dir = os.path.abspath('app/templates')
+    static_dir = os.path.abspath('app/static')
+
+    app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 
     CORS(app)
     
@@ -37,8 +42,9 @@ def create_app(config_class=None):
     from app.server.routes import api_bp
     app.register_blueprint(api_bp)
     
+    # ALGORITHM: Load index.html at the root URL
     @app.route('/')
     def root():
-        return redirect(url_for('client.index'))
+        return render_template('index.html')
     
     return app

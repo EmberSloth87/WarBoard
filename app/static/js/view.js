@@ -39,8 +39,6 @@ class WarBoardView {
                 a.time.localeCompare(b.time)
             );
 
-            console.log('Rendering day:', day.date, 'with sorted blocks:', sortedBlocks);
-
             const colContainer = document.createElement('div');
             colContainer.className = 'box p-2';
 
@@ -128,7 +126,7 @@ class WarBoardView {
             
             const editBtn = document.createElement('a');
             editBtn.className = 'button is-small is-warning ml-2';
-            editBtn.href = `project_form.html?id=${project.id}`;
+            editBtn.href = `/api/project-form/${project.id}`;
             editBtn.id = 'editProjectBtn';
             editBtn.setAttribute('data-type', 'edit-project');
             editBtn.setAttribute('data-id', project.id);
@@ -182,7 +180,7 @@ class WarBoardView {
             // ALGORITHM: Replace the 'X' delete button with an Edit button linked to the form
             const editLink = document.createElement('a');
             // Navigates to the form with the specific block ID in the URL
-            editLink.href = `focus_block_form.html?id=${block.id}`; 
+            editLink.href = `/api/focus-block-form/${block.id}`; 
             editLink.className = 'button is-small is-warning';
             editLink.innerHTML = '<span>Edit</span>';
 
@@ -207,7 +205,7 @@ class WarBoardView {
                 
                     // Using a simple bullet point for a professional list appearance
                     const taskText = document.createElement('span');
-                    taskText.className = 'ml-2 is-size-6';
+                    taskText.className = 'ml-2 is-size-7';
                     taskText.textContent = t.name;
 
                     const taskProject = document.createElement('span');
@@ -247,7 +245,6 @@ class WarBoardView {
             deadlineElement.className = 'deadline is-shadowless border-light';
             deadlineElement.setAttribute('data-type', 'deadline');
             deadlineElement.setAttribute('data-id', deadline.id);
-            // deadlineElement.textContent = `${deadline.title} (Due: ${deadline.time ? deadline.time.substring(0, 5) : 'No time'})`;
 
             const line1 = document.createElement('div');
             line1.className = 'is-flex is-justify-content-space-between is-align-items-center mb-1';
@@ -269,10 +266,10 @@ class WarBoardView {
             const dueTimeElement = document.createElement('span');
             dueTimeElement.className = 'tag is-rounded is-light ml-2';
             const formattedDueTime = deadline.time ? deadline.time.substring(0, 5) : 'No time';
-            dueTimeElement.textContent = `Due: ${formattedDueTime}`;
+            dueTimeElement.textContent = `Due ${formattedDueTime}`;
 
             const editButton = document.createElement('a');
-            editButton.href = `deadline_form.html?id=${deadline.id}`;
+            editButton.href = `/api/due-date-form/${deadline.id}`;
             editButton.className = 'button is-small is-warning ml-auto';
             editButton.innerHTML = '<span>Edit</span>';
 

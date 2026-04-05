@@ -1,13 +1,38 @@
 @import "https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css";
 
 
-/* ALGORITHM: Fix the main area to the viewport height minus the navbar */
+/* ALGORITHM: Set the body and html to take up the full viewport height */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* ALGORITHM: Use flexbox to create a full-height layout with a fixed navbar and a scrollable main area */
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ALGORITHM: Make the projects sidebar take up less horizontal space and fill vertical space */
+aside.column.is-3 {
+    flex: 0 0 20vw; /* Make sidebar width 20% of viewport width */
+    max-width: 20vw; /* Ensure it doesn't grow beyond 20% */
+    height: calc(100vh - 52px); /* Fill vertical space minus navbar height */
+    overflow-y: auto; /* Add vertical scrollbar if content exceeds viewport height */
+}
+
+#mainLayout {
+    width: 110vw; /* Make the main layout wider than the viewport to allow horizontal scrolling */
+}
+
+/* ALGORITHM: Fix the main area to the viewport height minus the navbar and fix the width to take up the entire viewport width */
 main.column {
     display: flex;
+    flex: 1;
     flex-direction: column;
     height: calc(100vh - 52px); /* 52px is the standard Bulma navbar height */
     overflow: hidden;
-    width: 5880px; /* 14 days * 420px per day */
 }
 
 /* ALGORITHM: Allow the container to scroll horizontally but fill vertical space */
@@ -31,9 +56,9 @@ main.column {
 
 /* ALGORITHM: Set fixed width and full height for each day */
 .day-column {
-    width: 420px !important;
-    min-width: 420px !important; 
-    max-width: 420px !important;
+    width: 320px !important;
+    min-width: 320px !important; 
+    max-width: 320px !important;
     height: 100%; 
     padding: 0 10px; /* Slight horizontal spacing between columns */
 }
@@ -79,4 +104,11 @@ main.column {
     margin-left: 5px; /* Optional: slight left margin for better visual separation */
     margin-right: 5px; /* Optional: slight right margin for better visual separation */
     padding: 10px; /* Optional: padding inside each block for better readability */
+}
+
+.is-spaced {
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }

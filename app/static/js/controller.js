@@ -76,7 +76,7 @@ class WarBoardController {
                 this.view.renderProjects([newProject]);
 
                 // ALGORITHM: After creating a new project, navigate to its form page for further editing
-                window.location.href = `project_form.html?id=${newProject.id}`
+                window.location.href = `/api/project-form/${newProject.id}`
             });
         }
         
@@ -95,7 +95,7 @@ class WarBoardController {
         };
         this.model.addBlock(blockData).then(newBlock => {
             // ALGORITHM: After creating a new block, navigate to its form page for further editing
-            window.location.href = `focus_block_form.html?id=${newBlock.id}`
+            window.location.href = `/api/focus-block-form/${newBlock.id}`
             
         });
     }
@@ -110,28 +110,10 @@ class WarBoardController {
         };
         this.model.addDeadline(deadlineData).then(newDeadline => {
             // ALGORITHM: After creating a new block, navigate to its form page for further editing
-            window.location.href = `deadline_form.html?id=${newDeadline.id}`
+            window.location.href = `/api/due-date-form/${newDeadline.id}`
             
         });
     }
-
-    // ALGORITHM: Handle clicks on tasks/projects specifically during deadline selection
-    handleGlobalClick(e) {
-        if (this.isSelectingForDeadline) {
-            const target = e.target.closest('.selectable-item');
-            if (target) {
-                const id = target.dataset.id;
-                const type = target.dataset.type;
-                // Logic to finalize deadline creation would go here
-                console.log(`Linking deadline to ${type} ID: ${id}`);
-                this.isSelectingForDeadline = false;
-                this.view.setSelectionMode(false);
-            }
-        }
-    }
-
-    
-    
 }
 
 // Start the app

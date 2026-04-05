@@ -1,11 +1,10 @@
 class DeadlineEditor {
     constructor() {
-        this.apiBase = 'http://127.0.0.1:5000/api';
+        this.apiBase = '/api';
         
-        // ALGORITHM: Extract the deadline ID from the current browser URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        this.deadlineId = urlParams.get('id'); 
-        
+        // ALGORITHM: Extract the deadline ID from the URL Path (e.g., /api/due-date-form/123)
+        this.deadlineId = window.location.pathname.split('/').pop(); // Get the last segment of the path as the deadline ID
+
         this.tasks = []; // Stores our local copy of the task data
         
         this.init();
@@ -109,7 +108,7 @@ class DeadlineEditor {
 
     // ALGORITHM: Act like a digital traffic cop and send the user back to the main board
     redirectHome() {
-        window.location.href = 'index.html'; 
+        window.location.href = '/'; // Redirect to the main board page (adjust if your homepage is different)
     }
 }
 

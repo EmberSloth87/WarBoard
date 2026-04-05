@@ -7,7 +7,7 @@ such as viewing the warboard, creating new projects, and managing tasks.
 
 """
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, render_template, request
 from datetime import date, datetime, time, timedelta
 from app.server import db
 from app.server.models import Day, FocusBlock, Task, Project, DueDate
@@ -441,28 +441,40 @@ def get_days():
 def cleanup_past_info():
     today = datetime.today().date()
     
-    # ALGORITHM: Delete all focus blocks that are associated with days in the past
-    past_blocks = FocusBlock.query.join(Day).filter(Day.date < today).all()
-    for block in past_blocks:
-        db.session.delete(block)
-        
-    # ALGORITHM: Delete all due dates that are associated with days in the past
-    past_due_dates = DueDate.query.join(Day).filter(Day.date < today).all()
-    for due_date in past_due_dates:
-        db.session.delete(due_date)
+    # ALGORITHM: Bulk delete past Days. 
+    # Because of foreign key constraints, we delete from the "bottom up" (Tasks -> Blocks -> Days)
+    
+    # 1. Delete tasks linked to past blocks
+    # EVALUATES: Finds tasks where the parent block is associated with a date before today
+    Task.query.filter(Task.focus_block.has(FocusBlock.date < today)).delete(synchronize_session=False)
 
-    # ALGORITHM: Delete all days that are in the past, which will cascade and delete any remaining associated focus blocks and due dates due to our relationship setup
-    past_days = Day.query.filter(Day.date < today).all()
-    for day in past_days:
-        db.session.delete(day)
+    # 2. Delete all focus blocks from the past
+    FocusBlock.query.filter(FocusBlock.date < today).delete(synchronize_session=False)
 
-    # ALGORITHM: Delete all tasks that are associated with focus blocks that have been deleted, ensuring we don't leave orphaned tasks in the database
-    for block in past_blocks:
-        tasks = Task.query.filter_by(focus_block_id=block.id).all()
-        for task in tasks:
-            db.session.delete(task)
-        
+    # 3. Delete any "true" orphans (tasks with no block ID at all)
+    # EVALUATES: Checks for tasks where focus_block_id is NULL
+    Task.query.filter(Task.focus_block_id == None).delete(synchronize_session=False)
+
     db.session.commit()
-    return jsonify({'message': 'Past focus blocks and due dates cleaned up successfully'}), 200
+    return jsonify({'message': 'Database power-washed successfully'}), 200
 
+
+# ==========================================
+# FORM ROUTES
+# ==========================================
+
+# ALGORITHM: Map a clean URL to the physical HTML template
+@api_bp.route('/focus-block-form/<int:focus_block_id>')
+def show_focus_block_form(focus_block_id):
+    # EVALUATES: Tells Flask to look in the /templates folder and send this file to the user
+    # ALGORITHM: The form will use JavaScript to read the focus_block_id from the URL and fetch the relevant data via AJAX
+    return render_template('focus_block_form.html')
+
+@api_bp.route('/due-date-form/<int:due_date_id>')
+def show_due_date_form(due_date_id):
+    return render_template('deadline_form.html')
+
+@api_bp.route('/project-form/<int:project_id>')
+def show_project_form(project_id):
+    return render_template('project_form.html')
 

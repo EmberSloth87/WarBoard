@@ -2,7 +2,7 @@
 
 class WarBoardModel {
     constructor() {
-        this.apiBase = 'http://127.0.0.1:5000/api'; // The base URL for our Flask routes
+        this.apiBase = '/api'; // The base URL for our Flask routes
     }
 
     async deletePastInfo() {

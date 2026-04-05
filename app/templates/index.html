@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WarBoard</title>
-    <link rel="stylesheet" href="static/site.css">
-    <script src="js/model.js"></script>
-    <script src="js/view.js"></script>
-    <script src="js/controller.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}">
+    <script src="{{ url_for('static', filename='js/model.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/view.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/controller.js') }}"></script>
 </head>
 <body>
     <nav class="navbar is-dark">
@@ -17,7 +17,7 @@
         </div>
     </nav>
 
-    <div class="columns is-gapless" style="height: calc(100vh - 52px);">
+    <div id="mainLayout" class="columns is-gapless" style="height: calc(100vh - 52px);">
         <aside class="column is-3 p-4 has-background-light" style="border-right: 1px solid #dbdbdb;">
             <div class="level">
                 <div class="level-left"><h2 class="title is-4">Projects</h2></div>
@@ -27,11 +27,7 @@
                 </div>
         </aside>
 
-        <main class="column is-9">
-            <div id="selectionPrompt" class="notification is-warning is-light is-hidden mb-0">
-                <p class="has-text-centered"><strong>Targeting Mode:</strong> Please click on a Task or Project to link this deadline.</p>
-            </div>
-            
+        <main class="column is-9">            
             <div class="board-container p-4">
                 <div id="warboardColumns" class="columns is-variable is-1">
                     </div>
