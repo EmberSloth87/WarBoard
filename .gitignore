@@ -13,4 +13,3 @@ migrations/
 
 # Config files
 *.env
-config.py
