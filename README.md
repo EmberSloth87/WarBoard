@@ -35,7 +35,7 @@ The WarBoard is designed to be your "Command Center." Here is how you interact w
 For more information, sample images are available in the **demo** folder of this repository.
 
 ## How to Install and Run Locally
-You don't need to be a computer scientist to run the WarBoard. Follow these steps to get set up on your own machine.
+You don't need to be a computer scientist to run the WarBoard. Follow these steps to get set up on your own computer.
 
 ### Step 1: Download the Files
 
@@ -84,3 +84,97 @@ The app is now running! Open your web browser (Chrome, Safari, or Edge) and type
 [http://127.0.0.1:5000](http://127.0.0.1:5000)
 
 When you are done running the app, you can stop the server by going to your Terminal window and pressing `Ctrl+C`.
+
+## Step 7 (optional): Set Up a "Quick Run" Command
+
+If you are tired of having to use multiple commands to run the WarBoard, you may find the following semi-automatic setup useful:
+
+### 1: Locate Your Terminal Profile
+
+Open PowerShell (Windows) or Terminal (Mac). Type the following commands:
+
+#### Windows
+
+```{powershell}
+echo $PROFILE       # Display the profile's expected path
+Test-Path $PROFILE  # Check if the profile exists (displays "True" if it does)
+```
+
+#### MacOS
+
+```{bash}
+ls ~/.bash_profile  # Display the profile's path OR an error if it is missing
+```
+
+### 2: Create the Profile (If It Doesn't Exist)
+
+If your profile does not exist, you must create it by running the following:
+
+#### Windows
+
+```{powershell}
+# Create the file AND any missing folders in one command
+New-Item -ItemType File -Path $PROFILE -Force
+```
+
+#### MacOS
+
+```{bash}
+touch ~/.bash_profile
+```
+
+### 3: Add the Single-Line Command to Your Profile
+
+#### Windows
+
+Type the following command to access your profile:
+
+```{powershell}
+notepad $PROFILE
+```
+
+This should open your PowerShell profile on Notepad. In that file, copy and paste the following:
+
+```{powershell}
+function wbRun { 
+    cd [C:\Users\yourname\path\to\warboard];
+    flask run
+ }
+```
+
+**Be sure to save the file before you close it!**
+
+#### MacOS
+
+Type the following command to access your profile:
+
+```{bash}
+nano ~/.bash_profile
+```
+
+This should open your Bash profile within the terminal. In that file, copy and paste the following:
+
+```{bash}
+wbRun() { 
+    cd [~/path/to/warboard];
+    flask run
+ }
+```
+
+**Be sure to save the file before you close it!**
+
+### 4: Try it out
+
+Close and reopen PowerShell/Terminal and type `wbRun`.
+
+Watch in amazement as your local WarBoard server runs after typing only that command.
+
+### Common Issue: Windows Security Error
+
+If you get a security error when trying to set this up, PowerShell may be preventing you from running scripts. Here is a quick fix:
+
+```{powershell}
+# Allows local scripts to run (safe for personal use)
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
