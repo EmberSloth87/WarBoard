@@ -97,7 +97,8 @@ def create_project():
         
     new_project = Project(
         name=data['name'],
-        description=data.get('description', '')
+        description=data.get('description', ''),
+        order=data.get('order', 0)
     )
     
     db.session.add(new_project)
@@ -113,6 +114,8 @@ def update_project(project_id):
     
     if 'name' in data: # Evaluates if the user provided a new name to update
         project.name = data['name']
+    if 'order' in data: # Evaluates if the user provided a new order to update
+        project.order = data['order']
     if 'description' in data: # Evaluates if the user provided a new description to update
         project.description = data['description']
         
@@ -124,6 +127,13 @@ def update_project(project_id):
 def delete_project(project_id):
     project = Project.query.get_or_404(project_id)
     db.session.delete(project)
+
+    # ALGORITHM: Update the order of remaining projects to fill the gap left by the deleted project, ensuring the order remains contiguous
+    remaining_projects = Project.query.filter(Project.order > project.order).all()
+    for remaining_project in remaining_projects:
+        remaining_project.order -= 1
+
+
     db.session.commit()
     return jsonify({'message': 'Project deleted successfully'}), 200
 
@@ -131,7 +141,7 @@ def delete_project(project_id):
 @api_bp.route('/projects', methods=['GET'])
 def get_all_projects():
     projects = Project.query.all()
-    return jsonify([{'id': p.id, 'name': p.name, 'description': p.description} for p in projects]), 200
+    return jsonify([{'id': p.id, 'name': p.name, 'order': p.order, 'description': p.description} for p in projects]), 200
 
 # ALGORITHM: Fetch a single project by ID and return its details as JSON
 @api_bp.route('/projects/<int:project_id>', methods=['GET'])
@@ -454,6 +464,13 @@ def cleanup_past_info():
     # 3. Delete any "true" orphans (tasks with no block ID at all)
     # EVALUATES: Checks for tasks where focus_block_id is NULL
     Task.query.filter(Task.focus_block_id == None).delete(synchronize_session=False)
+
+    # 4. Delete due dates linked to past days
+    DueDate.query.filter(DueDate.day.has(Day.date < today)).delete(synchronize_session=False)
+
+    # 5. Delete past days themselves
+    Day.query.filter(Day.date < today).delete(synchronize_session=False)
+
 
     db.session.commit()
     return jsonify({'message': 'Database power-washed successfully'}), 200

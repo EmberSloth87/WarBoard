@@ -70,6 +70,7 @@ class Task(db.Model):
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128), nullable=False)
+    order = db.Column(db.Integer, nullable=True)
     description = db.Column(db.Text)
 
 

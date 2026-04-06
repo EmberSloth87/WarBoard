@@ -88,6 +88,7 @@ class FocusBlockEditor {
 
             const reorderDiv = document.createElement('div');
             reorderDiv.className = 'is-flex is-flex-direction-column mr-3';
+            
             const moveUpBtn = document.createElement('button');
             moveUpBtn.type = 'button';
             moveUpBtn.className = 'button is-small is-light move-up-btn';

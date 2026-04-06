@@ -8,7 +8,14 @@ class WarBoardController {
 
         this.setupGlobalListeners();
 
+        this.projects = []; // Cache for project data to manage order and other properties
+
         this.init();
+    }
+
+    // ALGORITHM: Load the project data from the server
+    async loadProjects() {
+        this.projects = await this.model.getProjects();
     }
 
     // ALGORITHM: Listen for clicks on the entire board and filter for our specific buttons
@@ -60,8 +67,11 @@ class WarBoardController {
     async init() {
         this.model.deletePastInfo(); // Clear out old data on initialization
         
+        await this.loadProjects();
+        
         const boardData = await this.model.getBoardData();
         const projectData = await this.model.getProjects();
+
         this.view.renderProjects(projectData);
         this.view.renderBoard(boardData);
     }
@@ -70,8 +80,9 @@ class WarBoardController {
     handleAddProject() {
         console.log('Add Project button clicked');
         const projectName = prompt('Enter new project name:');
+
         if (projectName) {
-            this.model.addProject({ name: projectName }).then(newProject => {
+            this.model.addProject({ name: projectName, order: this.projects.length }).then(newProject => {
                 // Update the UI to include the new project
                 this.view.renderProjects([newProject]);
 
@@ -118,5 +129,7 @@ class WarBoardController {
 
 // Start the app
 document.addEventListener('DOMContentLoaded', () => {
-    const app = new WarBoardController(new WarBoardModel(), new WarBoardView());
+    const model = new WarBoardModel();
+    const view = new WarBoardView(model);
+    const app = new WarBoardController(model, view);
 });

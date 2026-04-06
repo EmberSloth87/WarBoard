@@ -1,9 +1,11 @@
 'use strict'
 
 class WarBoardView {
-    constructor() {
+    constructor(model) {
         this.board = document.querySelector("#warboardColumns");
         this.projectList = document.querySelector("#projectList");
+
+        this.model = model;
     }
 
     getProjectElement(projectId) {
@@ -44,7 +46,9 @@ class WarBoardView {
 
             const colHeading = document.createElement('p');
             colHeading.className = 'heading';
-            colHeading.textContent = new Date(day.date).toLocaleDateString('en-US', { weekday: 'long' });
+
+            // EVALUATES: Converts the date string into a Date object and formats it to display the weekday name (e.g., "Monday")
+            colHeading.textContent = new Date(day.date).toLocaleDateString('en-US', { weekday: 'long', timeZone: 'UTC' });
 
             const dateElement = document.createElement('p');
             dateElement.className = 'title is-5';
@@ -113,16 +117,22 @@ class WarBoardView {
 
     // ALGORITHM: Render the list of projects in the sidebar
     renderProjects(projects) {
-        projects.forEach(project => {
+        this.projectList.innerHTML = ''; // Clear existing projects to prevent duplication
+
+        // ALGORITHM: Sort projects by their "order" property before rendering to ensure they appear in the correct sequence
+        projects.sort((a, b) => (a.order || 0) - (b.order || 0)).forEach((project, index) => {
             const projectDiv = document.createElement('div');
-            projectDiv.className = 'panel-block is-clickable selectable-item';
+            projectDiv.className = 'panel-block is-flex is-justify-content-space-between is-align-items-center';
             projectDiv.setAttribute('data-type', 'project');
 
-            const projectElement = document.createElement('a');
-            projectElement.className = 'panel-block is-clickable selectable-item';
+            const projectElement = document.createElement('p');
+            projectElement.className = 'is-size-6';
             projectElement.setAttribute('data-type', 'project');
             projectElement.setAttribute('data-id', project.id);
             projectElement.textContent = project.name;
+
+            const buttonGroup = document.createElement('div');
+            buttonGroup.className = 'buttons are-small';
             
             const editBtn = document.createElement('a');
             editBtn.className = 'button is-small is-warning ml-2';
@@ -132,8 +142,82 @@ class WarBoardView {
             editBtn.setAttribute('data-id', project.id);
             editBtn.textContent = 'Edit';
 
-            projectDiv.appendChild(editBtn);
+            // ALGORITHM: Add arrows to shift the project order in the sidebar
+            const reorderDiv = document.createElement('div');
+            reorderDiv.className = 'is-flex is-flex-direction-column mr-3';
+
+            // ALGORITHM: Create reorder buttons
+            const moveUpBtn = document.createElement('button');
+            moveUpBtn.type = 'button';
+            moveUpBtn.className = 'button is-small is-light move-up-btn';
+            moveUpBtn.textContent = '▲';
+            
+            // EVALUATES: Stores the current array position on the button itself
+            moveUpBtn.dataset.index = index; 
+
+            const moveDownBtn = document.createElement('button');
+            moveDownBtn.type = 'button';
+            moveDownBtn.className = 'button is-small is-light move-down-btn mt-1';
+            moveDownBtn.textContent = '▼';
+    
+            // EVALUATES: Stores the current array position on the button itself
+            moveDownBtn.dataset.index = index; 
+
+            // ALGORITHM: Add listener to move project up
+            moveUpBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+        
+                // EVALUATES: Retrieves the index we stamped on the button earlier
+                const currentIndex = parseInt(moveUpBtn.dataset.index); 
+        
+                if (currentIndex > 0) { // Evaluates if the project is NOT already at the top
+                    const aboveProject = projects[currentIndex - 1];
+                    const currentProject = projects[currentIndex];
+            
+                    // Swap the order values
+                    const tempOrder = aboveProject.order;
+                    aboveProject.order = currentProject.order;
+                    currentProject.order = tempOrder;
+            
+                    this.model.updateProjectOrder(aboveProject.id, aboveProject.order);
+                    this.model.updateProjectOrder(currentProject.id, currentProject.order);
+            
+                    this.renderProjects(projects); // Re-renders the UI with the new order
+                }
+            });
+
+            moveDownBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                // EVALUATES: Retrieves the index we stamped on the button earlier
+                const currentIndex = parseInt(moveUpBtn.dataset.index); 
+        
+                if (currentIndex < projects.length - 1) { // Evaluates if the project is NOT already at the bottom
+                    const belowProject = projects[currentIndex + 1];
+                    const currentProject = projects[currentIndex];
+            
+                    // Swap the order values
+                    const tempOrder = belowProject.order;
+                    belowProject.order = currentProject.order;
+                    currentProject.order = tempOrder;
+                    
+                    this.model.updateProjectOrder(belowProject.id, belowProject.order);
+                    this.model.updateProjectOrder(currentProject.id, currentProject.order);
+            
+                    this.renderProjects(projects); // Re-renders the UI with the new order
+                }
+            });
+
+
+
+            reorderDiv.appendChild(moveUpBtn);
+            reorderDiv.appendChild(moveDownBtn);
+
+            buttonGroup.appendChild(editBtn);
+            buttonGroup.appendChild(reorderDiv);
+
+            
             projectDiv.appendChild(projectElement);
+            projectDiv.appendChild(buttonGroup);
             this.projectList.appendChild(projectDiv);
         });
     }

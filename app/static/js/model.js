@@ -29,6 +29,16 @@ class WarBoardModel {
         return await response.json();
     }
 
+    // ALGORITHM: Update the order of projects after an arrow click
+    async updateProjectOrder(projectId, newOrder) {
+        return await fetch(`${this.apiBase}/projects/${projectId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ order: newOrder })
+        });
+    }
+
+
     // ALGORITHM: Send a new project to the server
     async addProject(projectData) {
         const response = await fetch(`${this.apiBase}/projects`, {
