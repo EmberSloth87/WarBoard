@@ -85,7 +85,7 @@ The app is now running! Open your web browser (Chrome, Safari, or Edge) and type
 
 When you are done running the app, you can stop the server by going to your Terminal window and pressing `Ctrl+C`.
 
-## Step 7 (optional): Set Up a "Quick Run" Command
+## Step 7: Set Up a "Quick Run" Command (optional)
 
 If you are tired of having to use multiple commands to run the WarBoard, you may find the following semi-automatic setup useful. It is extra work to set up, but it pays off if you plan to run the WarBoard regularly.
 
