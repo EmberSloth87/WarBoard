@@ -19,14 +19,14 @@ api_bp = Blueprint('api', __name__, url_prefix='/api')
 # BOARD VIEW ROUTE
 # ==========================================
 
-# ALGORITHM: Fetch 14 days of data starting from today and format it for the frontend
+# ALGORITHM: Fetch 27 days of data starting from today and format it for the frontend
 @api_bp.route('/board', methods=['GET'])
 def get_board_view():
     today = datetime.today().date()
-    end_date = today + timedelta(days=13) # ALGORITHM: Evaluates the exact date 13 days in the future to establish our 14-day view horizon
+    end_date = today + timedelta(days=27) # ALGORITHM: Evaluates the exact date 27 days in the future to establish our 14-day view horizon
 
-    # ALGORITHM: Iterate through the next 14 days and ensure each one exists
-    for i in range(14):
+    # ALGORITHM: Iterate through the next 28 days and ensure each one exists
+    for i in range(28):
         target_date = today + timedelta(days=i)
         # Check if this specific date exists
         exists = Day.query.filter_by(date=target_date).first()
