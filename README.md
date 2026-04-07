@@ -137,7 +137,7 @@ This should open your PowerShell profile on Notepad. In that file, copy and past
 
 ```{powershell}
 function wbRun { 
-    cd C:\Users\yourname\path\to\warboard; # Replace "C:\Users\yourname\path\to\warboard" with the actual path to that folder.
+    cd "C:\Users\yourname\path\to\warboard"; # Replace "C:\Users\yourname\path\to\warboard" with the actual path to that folder.
     python wsgi.py
  }
 ```
@@ -156,7 +156,7 @@ This should open your Bash profile within the terminal. In that file, copy and p
 
 ```{bash}
 wbRun() { 
-    cd ~/path/to/warboard; # Replace "~/path/to/warboard" with the actual path to that folder.
+    cd "~/path/to/warboard"; # Replace "~/path/to/warboard" with the actual path to that folder.
     python wsgi.py
  }
 ```
