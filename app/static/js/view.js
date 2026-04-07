@@ -24,7 +24,7 @@ class WarBoardView {
         return dayColumn ? dayColumn.querySelector('.deadlines-container') : null;
     }
 
-    // ALGORITHM: Render the 14 columns of the WarBoard
+    // ALGORITHM: Render the 28 columns of the WarBoard
     renderBoard(days) {
         
         days.forEach(day => {
