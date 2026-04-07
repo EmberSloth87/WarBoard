@@ -75,7 +75,7 @@ Type the following command and press Enter:
 `pip install -r requirements.txt`
 (This tells your computer to download the specific libraries the WarBoard needs to function.)
 
-## Step 6: Start the WarBoard!
+### Step 6: Start the WarBoard!
 
 Type the final command:
 `python wsgi.py`
@@ -85,47 +85,47 @@ The app is now running! Open your web browser (Chrome, Safari, or Edge) and type
 
 When you are done running the app, you can stop the server by going to your Terminal window and pressing `Ctrl+C`.
 
-## Step 7: Set Up a "Quick Run" Command (optional)
+### Step 7: Set Up a "Quick Run" Command (optional)
 
 If you are tired of having to use multiple commands to run the WarBoard, you may find the following semi-automatic setup useful. It is extra work to set up, but it pays off if you plan to run the WarBoard regularly.
 
-### 1: Locate Your Terminal Profile
+#### 1: Locate Your Terminal Profile
 
 Open PowerShell (Windows) or Terminal (Mac). Type the following commands:
 
-#### Windows
+##### Windows
 
 ```{powershell}
 echo $PROFILE       # Display the profile's expected path
 Test-Path $PROFILE  # Check if the profile exists (displays "True" if it does)
 ```
 
-#### MacOS
+##### MacOS
 
 ```{bash}
 ls ~/.bash_profile  # Display the profile's path OR an error if it is missing
 ```
 
-### 2: Create the Profile (If It Doesn't Exist)
+#### 2: Create the Profile (If It Doesn't Exist)
 
 If your profile does not exist, you must create it by running the following:
 
-#### Windows
+##### Windows
 
 ```{powershell}
 # Create the file AND any missing folders in one command
 New-Item -ItemType File -Path $PROFILE -Force
 ```
 
-#### MacOS
+##### MacOS
 
 ```{bash}
 touch ~/.bash_profile
 ```
 
-### 3: Add the Single-Line Command to Your Profile
+#### 3: Add the Single-Line Command to Your Profile
 
-#### Windows
+##### Windows
 
 Type the following command to access your profile:
 
@@ -144,7 +144,7 @@ function wbRun {
 
 **Be sure to save the file before you close it!**
 
-#### MacOS
+##### MacOS
 
 Type the following command to access your profile:
 
@@ -163,13 +163,13 @@ wbRun() {
 
 **Be sure to save the file before you close it!**
 
-### 4: Try it out
+#### 4: Try it out
 
 Close and reopen PowerShell/Terminal and type `wbRun`.
 
 Watch in amazement as your local WarBoard server runs after typing only that command.
 
-### Common Issue: Windows Security Error
+#### Common Issue: Windows Security Error
 
 If you get a security error when trying to set this up, PowerShell may be preventing you from running scripts. Here is a quick fix:
 
