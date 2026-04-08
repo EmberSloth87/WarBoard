@@ -58,7 +58,10 @@ class WarBoardController {
     }
 
     async init() {
-        this.model.deletePastInfo(); // Clear out old data on initialization
+        // EVALUATES: Check if the model has data in the database that is outdated and should be deleted before loading the board
+        if (this.model.projects.length === 0) {
+            this.model.deletePastInfo(); // Clear out old data on initialization
+        }
         
         const boardData = await this.model.getBoardData();
         const projectData = await this.model.getProjects();

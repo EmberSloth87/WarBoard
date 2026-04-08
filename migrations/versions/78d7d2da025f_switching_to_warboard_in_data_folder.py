@@ -1,8 +1,8 @@
 """Switching to WarBoard in data folder
 
-Revision ID: bcd4f1160ea2
+Revision ID: 78d7d2da025f
 Revises: 
-Create Date: 2026-04-06 14:16:09.590044
+Create Date: 2026-04-08 16:05:15.225741
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'bcd4f1160ea2'
+revision = '78d7d2da025f'
 down_revision = None
 branch_labels = None
 depends_on = None

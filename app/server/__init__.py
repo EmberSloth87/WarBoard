@@ -33,7 +33,7 @@ def create_app(config_class=None):
     app.config.from_object(config_class)
 
     db.init_app(app)
-    migrate.init_app(app, db, render_as_batch=True)
+    migrate.init_app(app, db)
 
     # Import models after db is initialized
     from app.server import models
