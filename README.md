@@ -1,26 +1,26 @@
 # WarBoard: Command Your Time
 
-**WarBoard is a strategic 14-day planning interface that transforms chaotic to-do lists into high-intensity "Focus Blocks." It is designed for those who need to stop simply "tracking" tasks and start winning their day through structured, visual momentum.**
+**WarBoard is a strategic 28-day planning interface that transforms chaotic to-do lists into high-intensity "Focus Blocks." It is designed for those who need to stop simply "tracking" tasks and start winning their day through structured, visual momentum.**
 
 
 ## Why WarBoard?
 
 Most productivity apps are just digital graveyards for tasks you’ll never do. WarBoard is different. It helps you enhance your life by:
 
-* **Eliminating Decision Fatigue:** By mapping your next 14 days, you wake up knowing exactly what your "Main Quest" is, rather than wondering where to start.
+* **Eliminating Decision Fatigue:** By mapping your next 28 days, you wake up knowing exactly what your "Main Quest" is, rather than wondering where to start.
 
 * **Visualizing Capacity:** See exactly how much time you have left in a day. No more over-committing or burning out.
 
 * **Project-Specific Clarity:** Group your efforts into specific projects so you can track progress on what actually matters, not just busy work.
 
-* **Future-Proofing:** The 14-day horizon gives you enough foresight to prepare for deadlines without the overwhelming clutter of a monthly calendar.
+* **Future-Proofing:** The 28-day horizon gives you enough foresight to prepare for deadlines without the overwhelming clutter of a monthly calendar.
 
 
 ## How to Use the WarBoard
 
 The WarBoard is designed to be your "Command Center." Here is how you interact with it:
 
-* **Survey the Horizon:** The main screen displays a rolling 14-day view. Each day is a fresh column ready for your plan.
+* **Survey the Horizon:** The main screen displays a rolling 28-day view. Each day is a fresh column ready for your plan.
 
 * **Define Your Projects:** Use the sidebar to create your active projects. This helps you categorize your work (e.g., "Work," "Health," or "Math Research").
 
