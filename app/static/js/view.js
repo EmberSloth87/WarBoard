@@ -122,11 +122,11 @@ class WarBoardView {
         // ALGORITHM: Sort projects by their "order" property before rendering to ensure they appear in the correct sequence
         projects.sort((a, b) => (a.order || 0) - (b.order || 0)).forEach((project, index) => {
             const projectDiv = document.createElement('div');
-            projectDiv.className = 'panel-block is-flex is-justify-content-space-between is-align-items-center';
+            projectDiv.className = 'is-flex is-justify-content-space-between is-align-items-center';
             projectDiv.setAttribute('data-type', 'project');
 
             const projectElement = document.createElement('p');
-            projectElement.className = 'is-size-6';
+            projectElement.className = 'is-size-6 is-spaced mb-1';
             projectElement.setAttribute('data-type', 'project');
             projectElement.setAttribute('data-id', project.id);
             projectElement.textContent = project.name;
@@ -207,14 +207,11 @@ class WarBoardView {
                 }
             });
 
-
-
             reorderDiv.appendChild(moveUpBtn);
             reorderDiv.appendChild(moveDownBtn);
 
             buttonGroup.appendChild(editBtn);
             buttonGroup.appendChild(reorderDiv);
-
             
             projectDiv.appendChild(projectElement);
             projectDiv.appendChild(buttonGroup);
