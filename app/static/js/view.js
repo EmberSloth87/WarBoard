@@ -294,7 +294,7 @@ class WarBoardView {
 
                     const taskProject = document.createElement('span');
                     taskProject.className = 'tag is-rounded is-info ml-2';
-                    taskProject.textContent = t.project_id ? (this.getProjectElement(t.project_id)?.textContent || 'Unknown Project') : 'No Project';
+                    taskProject.textContent = t.project_id ? (this.model.getProjectById(t.project_id)?.name || 'Unknown Project') : 'No Project';
 
                     const taskTime = document.createElement('span');
                     taskTime.className = 'tag is-rounded is-light ml-auto';
@@ -340,7 +340,7 @@ class WarBoardView {
             projectElement.className = 'tag is-rounded is-info mr-2';
             // ALGORITHM: Query for the project name using the project ID
             // Display the project name associated with the deadline, or a default message if none exists
-            projectElement.textContent = deadline.project_id ? (this.getProjectElement(deadline.project_id)?.textContent || 'Unknown Project') : 'No Project';
+            projectElement.textContent = deadline.project_id ? (this.model.getProjectById(deadline.project_id)?.name || 'Unknown Project') : 'No Project';
             
 
             const titleElement = document.createElement('span');

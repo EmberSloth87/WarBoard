@@ -3,6 +3,14 @@
 class WarBoardModel {
     constructor() {
         this.apiBase = '/api'; // The base URL for our Flask routes
+
+        this.projects = [];
+        this.init();
+    }
+
+    async init() {
+        await this.deletePastInfo(); // Clean up old data on initialization
+        this.projects = await this.getProjects(); // Load projects into the model
     }
 
     async deletePastInfo() {
@@ -10,6 +18,10 @@ class WarBoardModel {
             method: 'DELETE'
         });
         return await response.json();
+    }
+
+    getProjectById(projectId) {
+        return this.projects.find(p => p.id === projectId);
     }
 
     // ALGORITHM: Fetch 14-day board data from the server
