@@ -1,4 +1,4 @@
-# WarBoard v1.0.0: Command Your Time
+# WarBoard v1.0.1: Command Your Time
 
 **WarBoard is a strategic 28-day planning interface that transforms chaotic to-do lists into high-intensity "Focus Blocks." It is designed for those who need to stop simply "tracking" tasks and start winning their day through structured, visual momentum.**
 
@@ -178,3 +178,9 @@ If you get a security error when trying to set this up, PowerShell may be preven
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
 
+
+
+# Changelog
+
+1.0.1:
+* trim down requirements.txt for a more lightweight environment
